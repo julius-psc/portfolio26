@@ -4,7 +4,7 @@ import LinkedinIcon from "@/assets/icons/linkedin.svg";
 
 const Navbar = () => {
   return (
-    <nav className="w-full flex items-center justify-between px-8 py-4 text-sm font-light tracking-wide">
+    <nav className="w-full flex items-center justify-between px-8 py-4 text-sm font-light tracking-wide text-zinc-900 dark:text-zinc-100">
       {/* Left - Email */}
       <a
         href="mailto:peschardjulius03@gmail.com"
@@ -18,18 +18,18 @@ const Navbar = () => {
       <div className="flex items-center gap-5">
         {/* Socials */}
         <a href="#" aria-label="GitHub" className="hover:opacity-60 transition-opacity">
-          <img src={GithubIcon} alt="GitHub" className="w-5 h-5" />
+          <img src={GithubIcon} alt="GitHub" className="w-5 h-5 dark:invert" />
         </a>
         <a href="#" aria-label="LinkedIn" className="hover:opacity-60 transition-opacity">
-          <img src={LinkedinIcon} alt="LinkedIn" className="w-5 h-5" />
+          <img src={LinkedinIcon} alt="LinkedIn" className="w-5 h-5 dark:invert" />
         </a>
 
         {/* Resume link */}
         <a
-          href="/resume.pdf"
+          href="/documents/resume-2026.pdf"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1 border-b border-transparent hover:border-black transition-all"
+          className="flex items-center gap-1 border-b border-transparent hover:border-black dark:hover:border-white transition-all"
         >
           <span>Resume</span>
           <ArrowUpRight size={15} strokeWidth={1.5} />

@@ -7,11 +7,11 @@ import github from "@/assets/icons/github.svg";
 
 import flowiv from "../assets/images/flowivate-landing.png";
 import coloursw from "../assets/images/colour-switch-landing.png";
-import macornette from "../assets/images/macornette-landing.png";
+import verdyct from "../assets/images/verdyct-landing.png";
 import chiensencavale from "../assets/images/chiens-landing.png";
 import digeto from "../assets/images/digeto-landing.png";
 
-type Status = "live" | "building" | "paused";
+type Status = "live" | "building" | "paused" | "completed";
 
 type ProjectLink = { label: string; href: string; kind: "website" | "github" };
 type ProjectItem = {
@@ -22,6 +22,7 @@ type ProjectItem = {
   statusLabel?: string;
   description?: string;
   tech?: string[];
+  metrics?: string;
   imageSrc?: string;
   imageAlt?: string;
   links?: ProjectLink[];
@@ -52,6 +53,11 @@ const statusStyles: Record<
     pill: "border-red-500/20 bg-red-50 dark:bg-red-900/10",
     text: "On hold",
   },
+  completed: {
+    dot: "bg-indigo-500",
+    pill: "border-indigo-500/20 bg-indigo-50 dark:bg-indigo-900/10",
+    text: "Completed",
+  },
 };
 
 const container: Variants = {
@@ -74,28 +80,41 @@ const defaultItems: ProjectItem[] = [
     year: "2024 — Present",
     status: "live",
     description:
-      "AI-driven productivity dashboard with modular tools for focus, wellness, journaling, and goal tracking. Includes Pomodoro, mood tracking, and adaptive AI insights.",
+      "Architected and developed an AI-driven productivity dashboard. Implemented complex features like Pomodoro, mood tracking, and adaptive AI insights using Next.js and MongoDB.",
     tech: ["React", "Next.js", "TypeScript", "MongoDB", "Tailwind"],
     imageSrc: flowiv,
     imageAlt: "Flowivate preview",
-    links: [{ label: "Website", href: "www.flowivate.com", kind: "website" }, {
-        label: "Github",
-        href: "https://github.com/julius-psc/flowivate",
-        kind: "github",
-      },],
+    links: [{ label: "Website", href: "https://www.flowivate.com", kind: "website" }, {
+      label: "Github",
+      href: "https://github.com/julius-psc/flowivate",
+      kind: "github",
+    },],
+  },
+  {
+    id: "verdyct",
+    name: "Verdyct",
+    year: "2025 — Present",
+    status: "building",
+    description:
+      "Designed and developed the beta version of Verdyct and brainstormed the idea.",
+    metrics: "Finalist @ the Paris AI Hackathon @StationF by Pioneers.",
+    tech: ["Next.js", "Tailwind CSS", "Supabase", "TypeScript", "Python"],
+    imageSrc: verdyct,
+    imageAlt: "Verdyct preview",
+    links: [{ label: "Website", href: "https://verdyct.io", kind: "website" }],
   },
   {
     id: "chiens-en-cavale",
     name: "Chiens en Cavale",
     year: "2024",
-    status: "live",
+    status: "completed",
     description:
-      "Designed and developed a full-stack reservation web application for Chiens en Cavale — a non-profit dog walking association, featuring volunteer management, bookings, payments, and admin tools.",
+      "Spearheaded the design and development of a full-stack reservation platform. Engineered robust booking workflows, volunteer management, and integrated Stripe payments using Node.js and PostgreSQL.",
+    metrics: "Application used by 90+ users on a regular basis.",
     tech: ["React", "Node.js", "Express", "PostgreSQL", "AWS S3", "Stripe"],
     imageSrc: chiensencavale,
     imageAlt: "Chiens en Cavale app preview",
     links: [
-      { label: "Website", href: "https://chiensencavale.fr", kind: "website" },
       {
         label: "Github",
         href: "https://github.com/julius-psc/dog-reservation-system",
@@ -109,7 +128,8 @@ const defaultItems: ProjectItem[] = [
     year: "2024",
     status: "live",
     description:
-      "Fast-paced, kid-friendly Roblox game inspired by Colour Switch, built with modular Luau scripting and balanced level design for accessibility and replayability.",
+      "Programmed a fast-paced Roblox game inspired by Colour Switch. Developed modular Luau scripts and created a balanced level design to maximize accessibility and replayability.",
+    metrics: "4000 visits.",
     tech: ["Luau (Roblox)", "Figma"],
     imageSrc: coloursw,
     imageAlt: "Colour Switch preview",
@@ -121,31 +141,16 @@ const defaultItems: ProjectItem[] = [
     year: "2025",
     status: "live",
     description:
-      "Designed and built the landing page for EDGE — Digeto’s global career accelerator helping students and professionals enter the impact startup ecosystem through real-world experience and mentorship.",
+      "Designed and engineered a high-converting landing page for a global career accelerator. Focused on responsive layouts, engaging animations, and a cohesive design system using React and Framer Motion.",
     tech: ["React", "Tailwind CSS", "Framer Motion", "Figma"],
     imageSrc: digeto,
     imageAlt: "EDGE landing page preview",
     links: [
-      { label: "Website", href: "https://edge.digeto.org", kind: "website" },
       {
         label: "Github",
         href: "https://github.com/julius-psc/digeto-gcap",
         kind: "github",
       },
-    ],
-  },
-  {
-    id: "macornette",
-    name: "Macornette",
-    year: "2024",
-    status: "live",
-    description:
-      "Designed and built the full WordPress website for Macornette — a Swiss ghost kitchen brand by TakTime, specializing in fresh, high-quality pasta dishes.",
-    tech: ["WordPress", "Figma"],
-    imageSrc: macornette,
-    imageAlt: "Macornette website preview",
-    links: [
-      { label: "Website", href: "https://macornette.ch", kind: "website" },
     ],
   },
 ];
@@ -161,7 +166,7 @@ export default function Projects({
     >
       {/* Match Experience container: centered, left-aligned, narrower */}
       <div className="w-full max-w-2xl mx-auto text-left">
-        <h2 className="text-2xl font-medium">{title}</h2>
+        <h2 className="text-2xl font-medium dark:text-zinc-200">{title}</h2>
 
         <motion.ul
           variants={container}
@@ -185,15 +190,15 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
   return (
     <motion.li
       variants={item}
-      className="rounded-2xl border border-zinc-200 dark:border-zinc-700 overflow-hidden"
+      className="rounded-2xl border border-zinc-200 dark:border-white/5 overflow-hidden"
     >
       {/* Cover */}
-      <div className="aspect-16/10 bg-zinc-100 dark:bg-zinc-800">
+      <div className="aspect-16/10 bg-zinc-100 dark:bg-white/5">
         {entry.imageSrc ? (
           <img
             src={entry.imageSrc}
             alt={entry.imageAlt ?? entry.name}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover object-top"
             loading="lazy"
           />
         ) : null}
@@ -204,7 +209,7 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
         {/* Title + Status + Year */}
         <div className="flex items-baseline justify-between gap-3">
           <div className="min-w-0 text-left">
-            <div className="text-base leading-none font-semibold truncate pb-1">
+            <div className="text-base leading-none font-medium truncate pb-1 dark:text-zinc-200">
               {entry.name}
             </div>
             <div
@@ -220,16 +225,18 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
                   status.dot,
                 ].join(" ")}
               >
-                <span
-                  className={[
-                    "absolute inline-flex h-2 w-2 rounded-full",
-                    "animate-ping",
-                    status.dot,
-                    "opacity-30",
-                  ].join(" ")}
-                />
+                {entry.status !== "completed" && (
+                  <span
+                    className={[
+                      "absolute inline-flex h-2 w-2 rounded-full",
+                      "animate-ping",
+                      status.dot,
+                      "opacity-30",
+                    ].join(" ")}
+                  />
+                )}
               </span>
-              <span className="font-medium text-zinc-700 dark:text-zinc-200">
+              <span className="font-medium text-zinc-700 dark:text-zinc-400">
                 {statusText}
               </span>
             </div>
@@ -242,9 +249,16 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
 
         {/* Description */}
         {entry.description && (
-          <p className="mt-3 text-sm text-gray-600 dark:text-gray-300 text-left">
+          <p className="mt-3 text-sm text-gray-600 dark:text-zinc-400 text-left">
             {entry.description}
           </p>
+        )}
+
+        {/* Metrics */}
+        {entry.metrics && (
+          <div className="mt-3 text-[13px] text-zinc-500 dark:text-zinc-400 text-left">
+            — {entry.metrics}
+          </div>
         )}
 
         {/* Tech tags */}
@@ -253,7 +267,7 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
             {entry.tech!.map((t) => (
               <li
                 key={t}
-                className="text-[11px] px-2 py-1 rounded-md border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300"
+                className="text-[11px] px-2 py-1 rounded-md border border-zinc-200 dark:border-white/10 text-zinc-600 dark:text-zinc-400"
               >
                 {t}
               </li>
@@ -271,9 +285,9 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
                   href={l.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm underline underline-offset-4 hover:opacity-80"
+                  className="inline-flex items-center gap-2 text-sm underline underline-offset-4 hover:opacity-80 dark:text-zinc-400"
                 >
-                  <img src={github} alt="GitHub" className="h-4 w-4 shrink-0" />
+                  <img src={github} alt="GitHub" className="h-4 w-4 shrink-0 dark:opacity-60 dark:invert" />
                   Github
                 </a>
               ) : (
@@ -282,9 +296,9 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
                   href={l.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm underline underline-offset-4 hover:opacity-80"
+                  className="inline-flex items-center gap-2 text-sm underline underline-offset-4 hover:opacity-80 dark:text-zinc-400"
                 >
-                  <Globe className="h-4 w-4 shrink-0" aria-hidden />
+                  <Globe className="h-4 w-4 shrink-0 dark:opacity-60" aria-hidden />
                   Website
                 </a>
               )

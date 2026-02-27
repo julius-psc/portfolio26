@@ -11,12 +11,12 @@ type ExperienceItem = {
   id: string;
   company: string;
   role: string;
-  years: string;           
-  description?: string;    
-  bullets?: string[];      
+  years: string;
+  description?: string;
+  bullets?: string[];
   logoSrc?: string;
   logoAlt?: string;
-  logoBg?: string;     
+  logoBg?: string;
 };
 
 type ExperienceProps = {
@@ -81,7 +81,7 @@ export default function Experience({
   return (
     <section className={`relative flex items-center px-6 py-12 ${className ?? ""}`}>
       <div className="w-full max-w-2xl mx-auto text-left">
-        <h2 className="text-2xl font-medium">{title}</h2>
+        <h2 className="text-2xl font-medium dark:text-zinc-100">{title}</h2>
 
         <motion.ul
           variants={container}
@@ -93,33 +93,34 @@ export default function Experience({
             <motion.li
               key={entry.id}
               variants={item}
-              className="relative flex items-start gap-4 rounded-2xl border border-zinc-200 p-4 transition-colors hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+              className="group relative flex items-start gap-4 sm:gap-6 rounded-2xl p-4 -mx-4 transition-all hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50"
             >
               <LogoSquare entry={entry} />
 
-              <div className="min-w-0">
-                <div className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                  {entry.years}
-                </div>
+              <div className="min-w-0 flex-1">
+                <header className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                  <h3 className="text-base font-medium tracking-tight text-zinc-900 dark:text-zinc-100">
+                    {entry.company}
+                  </h3>
+                  <div className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                    {entry.years}
+                  </div>
+                </header>
 
-                <div className="mt-1 text-base font-semibold truncate">
-                  {entry.company}
-                </div>
-
-                <div className="mt-0.5 text-sm text-gray-700 dark:text-gray-200">
+                <div className="mt-1 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   {entry.role}
                 </div>
 
                 {entry.description && (
-                  <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                  <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
                     {entry.description}
                   </p>
                 )}
 
                 {entry.bullets?.length ? (
-                  <ul className="mt-2 list-disc pl-5 space-y-1 text-sm text-gray-600 dark:text-gray-300">
+                  <ul className="mt-3 list-disc pl-4 space-y-1.5 text-sm text-zinc-600 dark:text-zinc-400">
                     {entry.bullets.map((b, i) => (
-                      <li key={i} className="marker:text-gray-400">
+                      <li key={i} className="marker:text-zinc-400 dark:marker:text-zinc-600">
                         {b}
                       </li>
                     ))}
@@ -141,22 +142,16 @@ function LogoSquare({ entry }: { entry: ExperienceItem }) {
   );
 
   return (
-    <div
-      className={[
-        "relative h-14 w-14 shrink-0 rounded-xl overflow-hidden",
-        entry.logoBg ?? "bg-zinc-100",
-        "flex items-center justify-center border border-zinc-200 dark:border-zinc-700",
-      ].join(" ")}
-    >
+    <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center">
       {entry.logoSrc ? (
         <img
           src={entry.logoSrc}
           alt={entry.logoAlt ?? entry.company}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
           loading="lazy"
         />
       ) : (
-        <span className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+        <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
           {initials || "—"}
         </span>
       )}
