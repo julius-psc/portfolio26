@@ -3,9 +3,9 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
-
-import digeto from "../assets/icons/dig.png";
-import chiens from "../assets/icons/chiens.png";
+import digetoLogo from "../assets/icons/dig-logo.svg";
+import xstreamLogo from "../assets/icons/xstream-logo.svg";
+import cecLogo from "../assets/icons/cec-logo.svg";
 
 type ExperienceItem = {
   id: string;
@@ -30,37 +30,43 @@ function initialsFromName(name: string) {
   return words.map((w) => w[0]?.toUpperCase() ?? "").join("");
 }
 
-const defaultItems = [
+const defaultItems: ExperienceItem[] = [
   {
-    id: "digeto",
+    id: "digeto-edge",
     company: "Digeto / EDGE",
-    role: "Freelance Technical Lead",
-    years: "2025",
-    description:
-      "Led product documentation, UX, and first React/TypeScript landing pages for Digeto’s platform and EDGE accelerator.",
+    role: "Freelance Technical Lead → Product Engineer",
+    years: "2025, Apr — Aug 2026",
     bullets: [
-      "Defined data models and MVP scope for non-technical founders",
-      "Built Digeto and EDGE landing pages with consistent design system",
+      "Designed and developed the landing pages for Digeto and EDGE with a consistent design system",
+      "Returning Apr 2026 as lead product engineer on Digeto's GTM engine MVP",
     ],
     logoAlt: "Digeto",
-    logoBg: "bg-zinc-100",
-    logoSrc: digeto
+    logoSrc: digetoLogo,
   },
   {
-    id: "chiens",
-    company: "Chiens en Cavale (Non-profit)",
-    role: "Vice President & Lead Developer",
-    years: "2024 — 2025",
-    description:
-      "Created full-stack reservation system and brand identity for a non-profit dog walking association.",
+    id: "xstream",
+    company: "XStream",
+    role: "Product Designer",
+    years: "2026",
     bullets: [
-      "Built React/Node/PostgreSQL app with AWS S3 and Stripe integration",
-      "Designed UX/UI used by 80+ users, including analytics dashboard",
+      "Designing first prototypes and redefining UX for a live streaming platform launching Q1 2027",
+      "Collaborating on XStream's brand identity and design system",
+    ],
+    logoAlt: "XStream",
+    logoSrc: xstreamLogo,
+  },
+  {
+    id: "chiens-en-cavale",
+    company: "Chiens en Cavale",
+    role: "Vice President & Product Engineer",
+    years: "2024 — 2025",
+    bullets: [
+      "Built a full-stack reservation platform for a dog-walking non-profit serving senior and disabled people — 100+ users nationwide",
+      "Secured a €3,000 private grant in recognition of the platform's social impact",
     ],
     logoAlt: "CEC",
-    logoBg: "bg-zinc-100",
-    logoSrc: chiens
-  }
+    logoSrc: cecLogo,
+  },
 ];
 
 const container: Variants = {
@@ -93,40 +99,34 @@ export default function Experience({
             <motion.li
               key={entry.id}
               variants={item}
-              className="group relative flex items-start gap-4 sm:gap-6 rounded-2xl p-4 -mx-4 transition-all hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50"
+              className="group relative flex flex-col rounded-2xl p-4 -mx-4 transition-all hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50"
             >
-              <LogoSquare entry={entry} />
-
-              <div className="min-w-0 flex-1">
-                <header className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
-                  <h3 className="text-base font-medium tracking-tight text-zinc-900 dark:text-zinc-100">
-                    {entry.company}
-                  </h3>
-                  <div className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    {entry.years}
+              <div className="flex items-center gap-4">
+                <LogoSquare entry={entry} />
+                <div className="min-w-0 flex-1">
+                  <header className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1">
+                    <h3 className="text-base font-medium tracking-tight text-zinc-900 dark:text-zinc-100">
+                      {entry.company}
+                    </h3>
+                    <div className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      {entry.years}
+                    </div>
+                  </header>
+                  <div className="mt-1 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {entry.role}
                   </div>
-                </header>
-
-                <div className="mt-1 text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  {entry.role}
                 </div>
-
-                {entry.description && (
-                  <p className="mt-3 text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
-                    {entry.description}
-                  </p>
-                )}
-
-                {entry.bullets?.length ? (
-                  <ul className="mt-3 list-disc pl-4 space-y-1.5 text-sm text-zinc-600 dark:text-zinc-400">
-                    {entry.bullets.map((b, i) => (
-                      <li key={i} className="marker:text-zinc-400 dark:marker:text-zinc-600">
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
               </div>
+
+              {entry.bullets?.length ? (
+                <ul className="mt-3 ml-[52px] list-disc pl-4 space-y-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+                  {entry.bullets.map((b, i) => (
+                    <li key={i} className="marker:text-zinc-400 dark:marker:text-zinc-600">
+                      {b}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
             </motion.li>
           ))}
         </motion.ul>
@@ -142,7 +142,7 @@ function LogoSquare({ entry }: { entry: ExperienceItem }) {
   );
 
   return (
-    <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center">
+    <div className="relative flex h-9 w-9 shrink-0 items-center justify-center">
       {entry.logoSrc ? (
         <img
           src={entry.logoSrc}

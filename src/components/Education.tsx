@@ -153,7 +153,7 @@ function LogoSquare({ entry }: { entry: EducationItem }) {
   );
 
   return (
-    <div className="relative flex h-14 w-14 sm:h-16 sm:w-16 shrink-0 items-center justify-center">
+    <div className="relative flex h-9 w-9 shrink-0 items-center justify-center">
       {entry.logoSrc ? (
         <img
           src={entry.logoSrc}

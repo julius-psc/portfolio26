@@ -75,8 +75,7 @@ const Hero = () => {
           <h1 className="text-7xl sm:text-8xl font-semibold mt-2 tracking-tight text-zinc-900 dark:text-zinc-50">Julius</h1>
 
           <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 mt-3 leading-relaxed">
-            Solopreneur building apps & thoughtful digital
-            experiences. 👨🏽‍💻
+            Frontend engineer with a product obsession. 👨🏽‍💻
           </p>
         </div>
       </div>

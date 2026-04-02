@@ -4,12 +4,8 @@ import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import { Globe } from "lucide-react";
 import github from "@/assets/icons/github.svg";
-
 import flowiv from "../assets/images/flowivate-landing.png";
-import coloursw from "../assets/images/colour-switch-landing.png";
 import verdyct from "../assets/images/verdyct-landing.png";
-import chiensencavale from "../assets/images/chiens-landing.png";
-import digeto from "../assets/images/digeto-landing.png";
 
 type Status = "live" | "building" | "paused" | "completed";
 
@@ -77,80 +73,30 @@ const defaultItems: ProjectItem[] = [
   {
     id: "flowivate",
     name: "Flowivate",
-    year: "2024 — Present",
-    status: "live",
+    year: "2026 — Present",
+    status: "building",
     description:
-      "Architected and developed an AI-driven productivity dashboard. Implemented complex features like Pomodoro, mood tracking, and adaptive AI insights using Next.js and MongoDB.",
-    tech: ["React", "Next.js", "TypeScript", "MongoDB", "Tailwind"],
+      "Founded and built Flowivate, a full-stack personal productivity dashboard. Currently focused on traction and marketing.",
+    tech: ["Next.js", "TypeScript", "MongoDB", "Tailwind CSS"],
     imageSrc: flowiv,
     imageAlt: "Flowivate preview",
-    links: [{ label: "Website", href: "https://www.flowivate.com", kind: "website" }, {
-      label: "Github",
-      href: "https://github.com/julius-psc/flowivate",
-      kind: "github",
-    },],
+    links: [
+      { label: "Website", href: "https://www.flowivate.com", kind: "website" },
+      { label: "Github", href: "https://github.com/julius-psc/flowivate", kind: "github" },
+    ],
   },
   {
     id: "verdyct",
     name: "Verdyct",
-    year: "2025 — Present",
+    year: "2026 — Present",
     status: "building",
     description:
-      "Designed and developed the beta version of Verdyct and brainstormed the idea.",
-    metrics: "Finalist @ the Paris AI Hackathon @StationF by Pioneers.",
-    tech: ["Next.js", "Tailwind CSS", "Supabase", "TypeScript", "Python"],
+      "Co-founded Verdyct — an AI tool that turns customs documents into declaration-ready files in minutes while ensuring CBAM compliance. Leading product design and engineering.",
+    tech: ["Next.js", "TypeScript", "Tailwind CSS", "Supabase", "Python"],
     imageSrc: verdyct,
     imageAlt: "Verdyct preview",
-    links: [{ label: "Website", href: "https://verdyct.io", kind: "website" }],
-  },
-  {
-    id: "chiens-en-cavale",
-    name: "Chiens en Cavale",
-    year: "2024",
-    status: "completed",
-    description:
-      "Spearheaded the design and development of a full-stack reservation platform. Engineered robust booking workflows, volunteer management, and integrated Stripe payments using Node.js and PostgreSQL.",
-    metrics: "Application used by 90+ users on a regular basis.",
-    tech: ["React", "Node.js", "Express", "PostgreSQL", "AWS S3", "Stripe"],
-    imageSrc: chiensencavale,
-    imageAlt: "Chiens en Cavale app preview",
     links: [
-      {
-        label: "Github",
-        href: "https://github.com/julius-psc/dog-reservation-system",
-        kind: "github",
-      },
-    ],
-  },
-  {
-    id: "colour-switch",
-    name: "Colour Switch",
-    year: "2024",
-    status: "live",
-    description:
-      "Programmed a fast-paced Roblox game inspired by Colour Switch. Developed modular Luau scripts and created a balanced level design to maximize accessibility and replayability.",
-    metrics: "4000 visits.",
-    tech: ["Luau (Roblox)", "Figma"],
-    imageSrc: coloursw,
-    imageAlt: "Colour Switch preview",
-    links: [{ label: "Roblox Game", href: "https://www.roblox.com/games/8219965802/Color-Switch", kind: "website" }],
-  },
-  {
-    id: "edge",
-    name: "EDGE",
-    year: "2025",
-    status: "live",
-    description:
-      "Designed and engineered a high-converting landing page for a global career accelerator. Focused on responsive layouts, engaging animations, and a cohesive design system using React and Framer Motion.",
-    tech: ["React", "Tailwind CSS", "Framer Motion", "Figma"],
-    imageSrc: digeto,
-    imageAlt: "EDGE landing page preview",
-    links: [
-      {
-        label: "Github",
-        href: "https://github.com/julius-psc/digeto-gcap",
-        kind: "github",
-      },
+      { label: "Website", href: "https://verdyct.io", kind: "website" },
     ],
   },
 ];
@@ -190,7 +136,7 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
   return (
     <motion.li
       variants={item}
-      className="rounded-2xl border border-zinc-200 dark:border-white/5 overflow-hidden"
+      className="flex flex-col rounded-2xl border border-zinc-200 dark:border-white/5 overflow-hidden"
     >
       {/* Cover */}
       <div className="aspect-16/10 bg-zinc-100 dark:bg-white/5">
@@ -204,8 +150,8 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
         ) : null}
       </div>
 
-      {/* Body (left-aligned, with a bit of bottom padding like Experience) */}
-      <div className="px-4 pt-4 pb-4">
+      {/* Body */}
+      <div className="flex flex-col flex-1 px-4 pt-4 pb-4">
         {/* Title + Status + Year */}
         <div className="flex items-baseline justify-between gap-3">
           <div className="min-w-0 text-left">
@@ -275,9 +221,9 @@ function ProjectCard({ entry }: { entry: ProjectItem }) {
           </ul>
         )}
 
-        {/* Links (fixed labels + proper icon sizing) */}
+        {/* Links — pinned to bottom */}
         {(entry.links?.length ?? 0) > 0 && (
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-auto pt-4 flex flex-wrap gap-3">
             {entry.links!.map((l) =>
               l.kind === "github" ? (
                 <a

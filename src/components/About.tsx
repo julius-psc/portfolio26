@@ -26,9 +26,7 @@ const About = () => {
         <h2 className="text-2xl font-medium dark:text-zinc-100">About</h2>
 
         <p className="text-base sm:text-lg text-gray-600 dark:text-zinc-400 leading-relaxed mt-3">
-          First-year Computer Science student from 🇫🇷, passionate about software
-          engineering and AI — driven to join top-tier tech companies and build
-          impactful, scalable products.
+          I build things. 18, first-year CS student, already shipping SaaS products and pushing into rooms most students haven't found yet. I care about design as much as the code and I'm just getting started.
         </p>
 
         <ul className="mt-5 flex flex-wrap gap-2">
