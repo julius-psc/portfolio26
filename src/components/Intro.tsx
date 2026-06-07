@@ -2,7 +2,7 @@ import profilePic from '../assets/images/profile-pic.png'
 
 export default function Intro() {
   return (
-    <div className="w-full flex justify-center pt-16">
+    <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
       <div className="flex flex-col gap-4 w-full max-w-[520px]">
 
         <div className="flex items-center gap-3">

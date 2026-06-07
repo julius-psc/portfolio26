@@ -9,13 +9,13 @@ function App() {
   return (
     <main className="min-h-screen bg-surface pb-32">
       <Intro />
-      <div className="w-full flex justify-center pt-16">
+      <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
         <div className="w-full max-w-[520px]">
           <HalftoneFlickerBanner height={48} />
         </div>
       </div>
       <Experience />
-      <div className="w-full flex justify-center pt-16">
+      <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
         <div className="w-full max-w-[520px]">
           <HalftoneFlickerBanner height={48} />
         </div>

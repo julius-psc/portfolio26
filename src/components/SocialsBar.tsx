@@ -18,12 +18,12 @@ export default function SocialsBar() {
       </a>
 
       {/* Main bar */}
-      <div className="bg-base border border-white/[0.08] rounded-lg px-5 py-3 flex items-center gap-8">
+      <div className="bg-base border border-white/[0.08] rounded-lg px-5 py-3 flex items-center gap-5 sm:gap-8">
 
-        {/* Email */}
+        {/* Email — hidden on mobile */}
         <a
           href="mailto:peschardjulius03@gmail.com"
-          className="text-primary text-sm font-medium opacity-60 hover:opacity-100 transition-opacity duration-150 whitespace-nowrap"
+          className="hidden sm:inline text-primary text-sm font-medium opacity-60 hover:opacity-100 transition-opacity duration-150 whitespace-nowrap"
         >
           peschardjulius03@gmail.com
         </a>
