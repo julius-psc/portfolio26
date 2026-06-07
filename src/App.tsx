@@ -1,36 +1,28 @@
 import './App.css'
-import Navbar from './components/Navbar'
-import About from './components/About'
-import Education from './components/Education'
+import Intro from './components/Intro'
 import Experience from './components/Experience'
-import Hero from './components/Hero'
 import Projects from './components/Projects'
-import Contact from './components/Contact'
 import HalftoneFlickerBanner from './components/HalftoneFlickerBanner'
+import SocialsBar from './components/SocialsBar'
 
 function App() {
   return (
-    <>
-      <Navbar />
-      <Hero />
-      <About />
-      <div className="px-6 pt-8">
-        <HalftoneFlickerBanner height={100} className="max-w-2xl mx-auto" />
-      </div>
-      <Education />
-      <div className="px-6">
-        <HalftoneFlickerBanner height={100} className="max-w-2xl mx-auto" />
+    <main className="min-h-screen bg-surface pb-32">
+      <Intro />
+      <div className="w-full flex justify-center pt-16">
+        <div className="w-full max-w-[520px]">
+          <HalftoneFlickerBanner height={48} />
+        </div>
       </div>
       <Experience />
-      <div className="px-6">
-        <HalftoneFlickerBanner height={100} className="max-w-2xl mx-auto" />
+      <div className="w-full flex justify-center pt-16">
+        <div className="w-full max-w-[520px]">
+          <HalftoneFlickerBanner height={48} />
+        </div>
       </div>
       <Projects />
-      <div className="px-6">
-        <HalftoneFlickerBanner height={100} className="max-w-2xl mx-auto" />
-      </div>
-      <Contact />
-    </>
+      <SocialsBar />
+    </main>
   )
 }
 

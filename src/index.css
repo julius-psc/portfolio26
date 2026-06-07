@@ -1,5 +1,53 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Geist';
+  src: url('/node_modules/geist/dist/fonts/geist-sans/Geist-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('/node_modules/geist/dist/fonts/geist-sans/Geist-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('/node_modules/geist/dist/fonts/geist-sans/Geist-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-sans: 'Geist', sans-serif;
+  --color-surface: oklch(0.971 0.002 270);  /* #F5F5F7 */
+  --color-base:    oklch(0.220 0.004 285);  /* #121214 */
+  --color-accent:  oklch(0.729 0.184 352);  /* #F96AAF */
+}
+
+/* text-primary adapts to context: dark text on light bg, light on dark */
+:root {
+  --color-primary: oklch(0.220 0.004 285);
+}
+
+.dark {
+  --color-primary: oklch(0.971 0.002 270);
+}
+
+@layer utilities {
+  .text-primary {
+    color: var(--color-primary);
+  }
+}
+
+* {
+  font-family: 'Geist', sans-serif;
+}
+
 button {
-    cursor: pointer;
+  cursor: pointer;
 }
