@@ -51,7 +51,7 @@ export default function SocialsBar() {
             className="bg-base border border-white/[0.08] rounded-lg px-5 py-3 flex items-center gap-5 sm:gap-8"
             initial={{ y: 24, scale: 0.97 }}
             animate={{ y: 0, scale: 1 }}
-            exit={{ y: 120, transition: { type: 'spring', stiffness: 420, damping: 32, delay: 0.42 } }}
+            exit={{ y: 120, transition: { type: 'spring', stiffness: 200, damping: 32, delay: 0.42 } }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
           >
 
