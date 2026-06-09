@@ -38,6 +38,12 @@
   --color-primary: oklch(0.971 0.002 270);
 }
 
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-primary: oklch(0.971 0.002 270);
+  }
+}
+
 @layer utilities {
   .text-primary {
     color: var(--color-primary);

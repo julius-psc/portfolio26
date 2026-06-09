@@ -1,4 +1,5 @@
 import { IconArrowUpRight } from '@tabler/icons-react'
+import { EncryptedText } from '@/components/ui/encrypted-text'
 
 const projects = [
   {
@@ -32,16 +33,25 @@ export default function Projects() {
 
               <div className="flex items-center gap-1">
                 {proj.href ? (
-                  <a
-                    href={proj.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-medium text-primary tracking-[-0.01em]"
-                  >
-                    {proj.name}
+                  <a href={proj.href} target="_blank" rel="noopener noreferrer">
+                    <EncryptedText
+                      text={proj.name}
+                      className="text-sm font-medium tracking-[-0.01em]"
+                      encryptedClassName="text-primary"
+                      revealedClassName="text-primary"
+                      revealDelayMs={40}
+                      flipDelayMs={40}
+                    />
                   </a>
                 ) : (
-                  <span className="text-sm font-medium text-primary tracking-[-0.01em]">{proj.name}</span>
+                  <EncryptedText
+                    text={proj.name}
+                    className="text-sm font-medium tracking-[-0.01em]"
+                    encryptedClassName="text-primary opacity-30"
+                    revealedClassName="text-primary"
+                    revealDelayMs={40}
+                    flipDelayMs={40}
+                  />
                 )}
                 {proj.accent && (
                   <IconArrowUpRight size={14} style={{ color: proj.accent }} className="shrink-0" />

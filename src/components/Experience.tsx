@@ -1,4 +1,5 @@
 import { IconArrowLoopRight2 } from '@tabler/icons-react'
+import { EncryptedText } from '@/components/ui/encrypted-text'
 
 const experiences = [
   {
@@ -39,7 +40,14 @@ export default function Experience() {
             <div key={exp.company} className="flex flex-col gap-1">
 
               <div className="flex items-baseline justify-between">
-                <span className="text-sm font-medium text-primary tracking-[-0.01em]">{exp.company}</span>
+                <EncryptedText
+                  text={exp.company}
+                  className="text-sm font-medium tracking-[-0.01em]"
+                  encryptedClassName="text-primary"
+                  revealedClassName="text-primary"
+                  revealDelayMs={40}
+                  flipDelayMs={40}
+                />
                 <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">{exp.period}</span>
               </div>
 
