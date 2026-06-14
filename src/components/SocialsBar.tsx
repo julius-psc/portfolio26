@@ -48,7 +48,7 @@ export default function SocialsBar() {
 
           {/* Main bar */}
           <motion.div
-            className="bg-base border border-white/[0.08] rounded-lg px-5 py-3 flex items-center gap-5 sm:gap-8"
+            className="bg-base border border-white/[0.08] rounded-lg px-5 py-3 flex items-center gap-5 sm:gap-8 min-w-[260px] sm:min-w-0"
             initial={{ y: 24, scale: 0.97 }}
             animate={{ y: 0, scale: 1 }}
             exit={{ y: 120, transition: { type: 'spring', stiffness: 200, damping: 32, delay: 0.42 } }}
@@ -88,7 +88,7 @@ export default function SocialsBar() {
               href="/documents/resume.pdf"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1 text-primary text-sm font-medium opacity-60 hover:opacity-100 transition-opacity duration-150 whitespace-nowrap"
+              className="flex items-center gap-1 text-primary text-sm font-medium opacity-60 hover:opacity-100 transition-opacity duration-150 whitespace-nowrap ml-auto sm:ml-0"
             >
               Resume
               <IconArrowUpRight size={14} className="shrink-0" />
