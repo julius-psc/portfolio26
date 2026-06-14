@@ -66,7 +66,7 @@ export default function SocialsBar() {
             {/* Social icons */}
             <div className="flex items-center gap-4">
               <a
-                href="https://github.com/juliuspeschard"
+                href="https://github.com/julius-psc"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="opacity-60 hover:opacity-100 transition-opacity duration-150"
@@ -74,7 +74,7 @@ export default function SocialsBar() {
                 <img src={githubIcon} alt="GitHub" className="w-4 h-4 invert" />
               </a>
               <a
-                href="https://linkedin.com/in/juliuspeschard"
+                href="https://www.linkedin.com/in/julius-peschard-007822309/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="opacity-60 hover:opacity-100 transition-opacity duration-150"
