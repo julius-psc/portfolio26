@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import Text3DFlip from '@/components/ui/text-3d-flip';
 import githubIcon from '../assets/icons/github.svg';
 import linkedinIcon from '../assets/icons/linkedin.svg';
+import xIcon from '../assets/icons/x.svg';
+import resumePdf from '../assets/documents/resume.pdf';
 
 export default function SocialsBar() {
   const [visible, setVisible] = useState(false);
@@ -81,11 +83,19 @@ export default function SocialsBar() {
               >
                 <img src={linkedinIcon} alt="LinkedIn" className="w-4 h-4 invert" />
               </a>
+              <a
+                href="https://x.com/juliuspsc"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="opacity-60 hover:opacity-100 transition-opacity duration-150"
+              >
+                <img src={xIcon} alt="X" className="w-4 h-4 invert" />
+              </a>
             </div>
 
             {/* Resume */}
             <a
-              href="/documents/resume.pdf"
+              href={resumePdf}
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-1 text-primary text-sm font-medium opacity-60 hover:opacity-100 transition-opacity duration-150 whitespace-nowrap ml-auto sm:ml-0"

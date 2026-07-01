@@ -3,12 +3,20 @@ import { EncryptedText } from '@/components/ui/encrypted-text'
 
 const projects = [
   {
+    name: 'Shotoku',
+    role: 'Co-Founder',
+    period: 'Present',
+    accent: '#F93743',
+    href: 'https://shotoku.dev',
+    description: 'Co-founding Shotoku — the open-source, local-first authorization layer for AI agents. Designed the brand identity, built the landing page, and implemented the TUI in TypeScript. Exploring agent-to-agent transactions, x402 and more recently MPP.',
+  },
+  {
     name: 'Flowivate',
     role: 'Founder',
     period: '2024–Present',
     accent: '#0075C4',
     href: 'https://flowivate.com',
-    description: 'Built v1 as a web productivity dashboard. Diagnosed the category as too broad, the platform as wrong. Rebuilding Flowivate as a native macOS focus agent with local AI, designed from scratch for the OS layer.',
+    description: 'Designed and engineered v1 as a web productivity dashboard. Diagnosed the category as too broad, the platform as wrong. Rebuilding as a native macOS focus agent with local AI, designed and engineered from scratch for the OS layer.',
   },
   {
     name: 'Verdyct',
@@ -16,7 +24,7 @@ const projects = [
     period: '2025–2026',
     accent: null,
     href: null,
-    description: 'Co-founded and led product design from hackathon to shutdown. Finalist @ Station F Hackathon (Pioneers), pivoted twice on market reasoning, reached MVP — then called it.',
+    description: 'Co-founded and led product design from hackathon idea to MVP. Top 10 Finalist at the Pioneers AI Lab Hackathon @ Station F before evolving the product through customer discovery into Verdyct.',
   },
 ]
 
@@ -33,7 +41,7 @@ export default function Projects() {
 
               <div className="flex items-center gap-1">
                 {proj.href ? (
-                  <a href={proj.href} target="_blank" rel="noopener noreferrer">
+                  <a href={proj.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 cursor-pointer">
                     <EncryptedText
                       text={proj.name}
                       className="text-sm font-medium tracking-[-0.01em]"
@@ -42,6 +50,9 @@ export default function Projects() {
                       revealDelayMs={40}
                       flipDelayMs={40}
                     />
+                    {proj.accent && (
+                      <IconArrowUpRight size={14} style={{ color: proj.accent }} className="shrink-0 translate-y-[1px]" />
+                    )}
                   </a>
                 ) : (
                   <EncryptedText
@@ -52,9 +63,6 @@ export default function Projects() {
                     revealDelayMs={40}
                     flipDelayMs={40}
                   />
-                )}
-                {proj.accent && (
-                  <IconArrowUpRight size={14} style={{ color: proj.accent }} className="shrink-0" />
                 )}
               </div>
 
