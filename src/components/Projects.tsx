@@ -5,15 +5,15 @@ const projects = [
   {
     name: 'Shotoku',
     role: 'Co-Founder',
-    period: 'Present',
+    period: 'Current',
     accent: '#F93743',
     href: 'https://shotoku.dev',
-    description: 'Co-founding Shotoku — the open-source, local-first authorization layer for AI agents. Designed the brand identity, built the landing page, and implemented the TUI in TypeScript. Exploring agent-to-agent transactions, x402 and more recently MPP.',
+    description: 'Co-founding Shotoku — the open-source, local-first authorization layer for AI agents. Designed the brand identity, built the landing page, and implemented the TUI in TypeScript. Exploring agent-to-agent transactions and x402.',
   },
   {
     name: 'Flowivate',
     role: 'Founder',
-    period: '2024–Present',
+    period: '2024–Current',
     accent: '#0075C4',
     href: 'https://flowivate.com',
     description: 'Designed and engineered v1 as a web productivity dashboard. Diagnosed the category as too broad, the platform as wrong. Rebuilding as a native macOS focus agent with local AI, designed and engineered from scratch for the OS layer.',
@@ -24,7 +24,7 @@ const projects = [
     period: '2025–2026',
     accent: null,
     href: null,
-    description: 'Co-founded and led product design from hackathon idea to MVP. Top 10 Finalist at the Pioneers AI Lab Hackathon @ Station F before evolving the product through customer discovery into Verdyct.',
+    description: 'Top 10 Finalist at Pioneers AI Lab Hackathon @ Station F; evolved the product through customer discovery into an AI-native customs operations platform.',
   },
 ]
 

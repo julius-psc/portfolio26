@@ -17,9 +17,9 @@ export default function Education() {
               revealDelayMs={40}
               flipDelayMs={40}
             />
-            <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">2025–2027</span>
+            <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">2025–2026</span>
           </div>
-          <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">BSc Computer Science</span>
+          <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">First-year coursework, BSc Computer Science</span>
         </div>
 
       </div>

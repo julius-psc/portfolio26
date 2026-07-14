@@ -10,7 +10,6 @@ function App() {
   return (
     <main className="min-h-screen bg-surface dark:bg-base pb-32">
       <Intro />
-      <Education />
       <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
         <div className="w-full max-w-[520px]">
           <HalftoneFlickerBanner height={48} />
@@ -23,6 +22,7 @@ function App() {
         </div>
       </div>
       <Projects />
+      <Education />
       <SocialsBar />
     </main>
   )
