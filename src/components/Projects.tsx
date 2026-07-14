@@ -8,7 +8,7 @@ const projects = [
     period: 'Current',
     accent: '#F93743',
     href: 'https://shotoku.dev',
-    description: 'Co-founding Shotoku — the open-source, local-first authorization layer for AI agents. Designed the brand identity, built the landing page, and implemented the TUI in TypeScript. Exploring agent-to-agent transactions and x402.',
+    description: 'Co-founding Shotoku — the open-source, local-first spend control for AI agents. Designed the brand identity, built the landing page, and implemented the TUI in TypeScript. Exploring agent-to-agent transactions and x402.',
   },
   {
     name: 'Flowivate',

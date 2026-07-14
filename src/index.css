@@ -54,6 +54,14 @@
   font-family: 'Geist', sans-serif;
 }
 
+body {
+  user-select: none;
+}
+
+.selectable {
+  user-select: text;
+}
+
 button {
   cursor: pointer;
 }
