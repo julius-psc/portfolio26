@@ -1,5 +1,36 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/src/assets/fonts/playfair/PlayfairDisplay-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/src/assets/fonts/playfair/PlayfairDisplay-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/src/assets/fonts/playfair/PlayfairDisplay-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('/src/assets/fonts/playfair/PlayfairDisplay-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
 @font-face {
   font-family: 'Geist';
   src: url('/node_modules/geist/dist/fonts/geist-sans/Geist-Regular.woff2') format('woff2');
@@ -56,6 +87,16 @@
 
 body {
   user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+.btn-press {
+  transition-property: transform;
+  transition-duration: 0.1s;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+.btn-press:active {
+  transform: scale(0.96);
 }
 
 .selectable {
@@ -64,4 +105,58 @@ body {
 
 button {
   cursor: pointer;
+}
+
+.aurora-input::placeholder {
+  color: rgba(242, 238, 232, 0.3);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+[data-vaul-drawer]::after {
+  display: none !important;
+}
+
+[data-vaul-drawer] {
+  will-change: auto !important;
+}
+
+@keyframes ellipsis-blink {
+  0%, 20%  { opacity: 1; }
+  60%, 100% { opacity: 0; }
+}
+.ellipsis-dot {
+  animation: ellipsis-blink 1.2s infinite;
+}
+.ellipsis-dot:nth-child(2) { animation-delay: 0.2s; }
+.ellipsis-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes shimmer-sweep {
+  to { background-position: calc(100% + var(--shiny-width)) 0; }
+}
+
+.shimmer-text-orange {
+  --shiny-width: 140px;
+  color: rgba(248, 100, 5, 0.82);
+  background: linear-gradient(90deg, transparent, rgba(255, 235, 190, 0.52) 50%, transparent);
+  background-size: var(--shiny-width) 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-position: calc(-100% - var(--shiny-width)) 0;
+  background-repeat: no-repeat;
+  animation: shimmer-sweep 2.4s linear infinite;
+}
+
+@theme inline {
+  --animate-shiny-text: shiny-text 8s infinite;
+  @keyframes shiny-text {
+  0%, 90%, 100% {
+    background-position: calc(-100% - var(--shiny-width)) 0;
+    }
+  30%, 60% {
+    background-position: calc(100% + var(--shiny-width)) 0;
+    }
+  }
 }

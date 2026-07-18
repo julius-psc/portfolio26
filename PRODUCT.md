@@ -128,3 +128,8 @@ Before shipping any section, ask:
 3. Is there anything here that exists purely because it looks nice rather than because it communicates something?
 
 If the answer to 3 is yes: remove it.
+
+
+## Case Studies
+
+I am working on Aur0ra, please read the AUR0RA.md file for more context of what we are building at /#aurora

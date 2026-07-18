@@ -69,7 +69,7 @@ export default function Experience() {
                     />
                   )}
                   {exp.accent && (
-                    <IconArrowUpRight size={14} style={{ color: exp.accent }} className="shrink-0 translate-y-[1px]" />
+                    <IconArrowUpRight size={14} style={{ color: exp.accent }} className="shrink-0 translate-y-px" />
                   )}
                 </div>
                 <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">{exp.period}</span>
@@ -85,7 +85,7 @@ export default function Experience() {
                 <ul className="mt-1 flex flex-col gap-0.5 pl-4">
                   {exp.highlights.map((h) => (
                     <li key={h} className="flex items-start gap-1.5 text-xs font-medium text-primary opacity-50 tracking-[-0.01em]">
-                      <IconArrowLoopRight2 size={12} className="shrink-0 mt-[2px] scale-y-[-1]" />
+                      <IconArrowLoopRight2 size={12} className="shrink-0 mt-0.5 scale-y-[-1]" />
                       {h}
                     </li>
                   ))}
