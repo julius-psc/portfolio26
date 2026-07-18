@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion } from 'motion/react'
 import naomiPfp from '../../assets/aur0ra/Naomi-PFP.png'
 import planeIcon from '../../assets/aur0ra/Plane Icon.svg'
 import mealIcon from '../../assets/aur0ra/Meal Icon.svg'
@@ -20,9 +20,8 @@ const CARD_W        = 338
 const IKOYI_CARD_H  = 300
 const IKOYI_PANEL_H = 230
 const COLLAPSED_H   = 76
-const stackCardClip    = squircleClip({ width: CARD_W, height: IKOYI_CARD_H, cornerRadius: radius.md, cornerSmoothing: 0.6 })
-const collapsedCardClip = squircleClip({ width: CARD_W, height: COLLAPSED_H,   cornerRadius: radius.md, cornerSmoothing: 0.6 })
-const innerPanelClip    = squircleClip({ width: CARD_W, height: IKOYI_PANEL_H, cornerRadius: radius.md, cornerSmoothing: 0.6 })
+const stackCardClip  = squircleClip({ width: CARD_W, height: IKOYI_CARD_H,  cornerRadius: radius.md, cornerSmoothing: 0.6 })
+const innerPanelClip = squircleClip({ width: CARD_W, height: IKOYI_PANEL_H, cornerRadius: radius.md, cornerSmoothing: 0.6 })
 
 const PEEK_H    = 40                    // space above front card where behind cards peek
 const COMMIT_Y  = IKOYI_CARD_H * 0.3   // ~90px upward drag to commit
@@ -52,10 +51,6 @@ const prose: React.CSSProperties = {
   margin:     0,
 }
 
-const accentSpan: React.CSSProperties = {
-  color:      accent.primary,
-  fontFamily: PLAYFAIR,
-}
 
 // ─── Card data ────────────────────────────────────────────────────────────────
 
@@ -149,7 +144,7 @@ interface DiscoverScreenProps {
   onConfirm?:         () => void
   onAdjust?:          () => void
   onCardConfirm?:     () => void
-  phoneScrollRef?:    React.RefObject<HTMLDivElement>
+  phoneScrollRef?:    React.RefObject<HTMLDivElement | null>
 }
 
 export default function DiscoverScreen({ provenceUpdated = false, confirmedProvence = false, onConfirm, onAdjust, onCardConfirm, phoneScrollRef }: DiscoverScreenProps) {

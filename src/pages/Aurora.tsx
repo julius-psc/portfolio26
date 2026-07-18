@@ -67,23 +67,6 @@ function SectionLabel({ children, light }: { children: React.ReactNode; light?: 
   )
 }
 
-function ScreenshotPlaceholder({ label }: { label: string }) {
-  return (
-    <div
-      className="w-full overflow-hidden flex items-center justify-center"
-      style={{
-        aspectRatio: '4 / 3',
-        borderRadius: radius.lg,
-        background: surface.glass,
-        border: `1px solid ${border.default}`,
-      }}
-    >
-      <span className="text-xs font-mono opacity-20 tracking-wide" style={{ color: text.primary }}>
-        {label}
-      </span>
-    </div>
-  )
-}
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
