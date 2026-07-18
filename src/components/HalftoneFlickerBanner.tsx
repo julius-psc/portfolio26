@@ -1,19 +1,6 @@
-import { useRef, useMemo, useEffect, useState } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
-
-function usePrefersColorScheme(): "dark" | "light" {
-  const [scheme, setScheme] = useState<"dark" | "light">(() =>
-    window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-  );
-  useEffect(() => {
-    const mq = window.matchMedia("(prefers-color-scheme: dark)");
-    const handler = (e: MediaQueryListEvent) => setScheme(e.matches ? "dark" : "light");
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return scheme;
-}
 
 // ─── Shaders ──────────────────────────────────────────────────────────────────
 
@@ -261,6 +248,8 @@ export interface HalftoneFlickerBannerProps {
   foregroundColorDark?: string;
   backgroundColorDark?: string;
   opacity?: number;
+  /** Force dark palette. Defaults to false (always light). */
+  dark?: boolean;
 }
 
 export default function HalftoneFlickerBanner({
@@ -279,10 +268,10 @@ export default function HalftoneFlickerBanner({
   foregroundColorDark = "#71717a",
   backgroundColorDark = "#09090b",
   opacity = 1,
+  dark = false,
 }: HalftoneFlickerBannerProps) {
-  const scheme = usePrefersColorScheme();
-  const fg = scheme === "dark" ? foregroundColorDark : foregroundColor;
-  const bg = scheme === "dark" ? backgroundColorDark : backgroundColor;
+  const fg = dark ? foregroundColorDark : foregroundColor;
+  const bg = dark ? backgroundColorDark : backgroundColor;
 
   return (
     <div
