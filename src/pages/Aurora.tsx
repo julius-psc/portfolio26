@@ -267,11 +267,12 @@ export default function Aurora() {
                 className="hide-scrollbar"
                 data-lenis-prevent
                 style={{
-                  position:        'absolute',
-                  inset:           0,
-                  overflowY:       'scroll',
-                  scrollbarWidth:  'none',
-                  background:      surface.base,
+                  position:          'absolute',
+                  inset:             0,
+                  overflowY:         'scroll',
+                  scrollbarWidth:    'none',
+                  background:        surface.base,
+                  overscrollBehavior: 'contain',
                 }}
               >
                 <DiscoverScreen provenceUpdated={provenceUpdated} confirmedProvence={confirmedProvence} onConfirm={handleConfirm} onAdjust={handleAdjust} onCardConfirm={() => triggerIsland('confirmed')} phoneScrollRef={phoneScrollRef} />
@@ -309,13 +310,11 @@ export default function Aurora() {
                 )}
                 <button
                   className="btn-press"
-                  style={{ pointerEvents: 'auto', background: 'none', border: 'none', padding: 0, cursor: 'pointer', position: 'relative' }}
+                  style={{ pointerEvents: 'auto', background: 'none', border: 'none', padding: 0, cursor: 'pointer', position: 'relative', touchAction: 'manipulation' }}
+                  onPointerDown={startLongPress}
+                  onPointerUp={cancelLongPress}
+                  onPointerLeave={cancelLongPress}
                   onClick={handleClick}
-                  onMouseDown={startLongPress}
-                  onMouseUp={cancelLongPress}
-                  onMouseLeave={cancelLongPress}
-                  onTouchStart={startLongPress}
-                  onTouchEnd={cancelLongPress}
                 >
                   {/* Glow — springs in from below; inner layer drifts + shifts shades while listening */}
                   <motion.div

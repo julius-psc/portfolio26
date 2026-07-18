@@ -102,6 +102,12 @@ button {
   cursor: pointer;
 }
 
+img {
+  -webkit-touch-callout: none;
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
 .aurora-input::placeholder {
   color: rgba(242, 238, 232, 0.3);
 }
