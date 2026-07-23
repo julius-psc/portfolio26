@@ -9,7 +9,12 @@ export default function SandboxTeaser() {
           [Sandbox]
         </span>
         <a
-          href="#sandbox"
+          href="/sandbox"
+          onClick={(e) => {
+            e.preventDefault()
+            history.pushState(null, '', '/sandbox')
+            window.dispatchEvent(new PopStateEvent('popstate'))
+          }}
           className="group flex items-center gap-1 w-fit"
         >
           <Text3DFlip

@@ -7,6 +7,7 @@ import Experience from './components/Experience'
 import Projects from './components/Projects'
 import HalftoneFlickerBanner from './components/HalftoneFlickerBanner'
 import SocialsBar from './components/SocialsBar'
+import SandboxTeaser from './components/SandboxTeaser'
 import Sandbox from './pages/Sandbox'
 import Aurora from './pages/Aurora'
 
@@ -36,6 +37,7 @@ function MainPortfolio() {
         </div>
       </div>
       <Projects />
+      <SandboxTeaser />
       <Education />
       <SocialsBar />
     </main>
@@ -49,6 +51,8 @@ export default function App() {
 
   useEffect(() => {
     window.scrollTo(0, 0)
+
+    if (path !== '/aurora') return
 
     const lenis = new Lenis({
       duration:        1.8,
