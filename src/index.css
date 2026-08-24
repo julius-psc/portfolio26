@@ -3,6 +3,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @font-face {
+  font-family: 'Caveat';
+  src: url('/src/assets/fonts/caveat/Caveat.woff2') format('woff2');
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Playfair Display';
   src: url('/src/assets/fonts/playfair/PlayfairDisplay-Regular.ttf') format('truetype');
   font-weight: 400;

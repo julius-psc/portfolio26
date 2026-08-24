@@ -1,0 +1,32 @@
+<svg width="154" height="208" viewBox="0 0 154 208" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Drop shadow -->
+  <rect x="21" y="12" width="128" height="193" rx="3" fill="black" fill-opacity="0.07"/>
+
+  <!-- Page block edges — three layers give a stacked-pages illusion -->
+  <rect x="14" y="4" width="131" height="196" rx="2" fill="#EDEAE3"/>
+  <rect x="13" y="3" width="131" height="196" rx="2" fill="#F2EFE9"/>
+  <rect x="12" y="2" width="131" height="196" rx="2" fill="#F7F4EE"/>
+
+  <!-- Spine (thinner — 10px) -->
+  <rect x="12" y="2" width="10" height="196" rx="2" fill="#E6E3DC"/>
+
+  <!-- Hinge — hard rule + soft glow -->
+  <rect x="21" y="2" width="1.5" height="196" fill="#C8C5BC"/>
+  <rect x="22.5" y="2" width="5" height="196" fill="url(#hinge)"/>
+
+  <!-- Front cover -->
+  <rect x="22" y="2" width="122" height="196" fill="white"/>
+
+  <!-- Outer cover border -->
+  <rect x="22.75" y="2.75" width="120.5" height="194.5" stroke="#E2DFDA" stroke-width="1.5" fill="none"/>
+
+  <!-- Spine left highlight -->
+  <rect x="12" y="2" width="4" height="196" fill="white" fill-opacity="0.3" rx="2"/>
+
+  <defs>
+    <linearGradient id="hinge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#C0BDB4" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#C0BDB4" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>
