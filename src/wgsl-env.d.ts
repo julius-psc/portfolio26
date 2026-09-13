@@ -1,1 +1,13 @@
-/// <reference types="@vgpu/wgsl/wgsl-types" />
+/** Ambient types for vgpu's Vite WGSL loader (`wgslVitePlugin`). */
+declare module '*.wgsl' {
+  const source: {
+    readonly version: 1
+    readonly wgsl: string
+    readonly functionExports?: readonly {
+      readonly name: string
+      readonly resolvedName: string
+      readonly parameterNames: readonly string[]
+    }[]
+  }
+  export default source
+}

@@ -78,6 +78,9 @@ importers:
       '@types/three':
         specifier: ^0.183.1
         version: 0.183.1
+      '@vgpu/wgsl':
+        specifier: 0.4.1
+        version: 0.4.1(@vgpu/adapter-node@0.4.1)
       '@vitejs/plugin-react':
         specifier: ^5.0.4
         version: 5.2.0(rolldown-vite@7.1.14(@emnapi/core@1.11.2)(@emnapi/runtime@1.11.2)(@types/node@24.13.3)(jiti@2.7.0))
@@ -3787,7 +3790,7 @@ snapshots:
 
   webgpu@0.4.0:
     dependencies:
-      '@webgpu/types': 0.1.71
+      '@webgpu/types': 0.1.72
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
