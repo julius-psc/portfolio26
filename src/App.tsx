@@ -14,6 +14,8 @@ import SandboxTeaser from './components/SandboxTeaser'
 import MoodboardCanvas from './components/MoodboardCanvas'
 import Sandbox from './pages/Sandbox'
 import Aurora from './pages/Aurora'
+import RevolutCard from './pages/RevolutCard'
+import RevolutEnv from './pages/RevolutEnv'
 
 const PULL_THRESHOLD = 72
 
@@ -180,5 +182,7 @@ export default function App() {
 
   if (path === '/sandbox') return <Sandbox />
   if (path === '/aurora') return <Aurora />
+  if (path === '/revolut-card') return <RevolutCard />
+  if (path === '/env') return <RevolutEnv />
   return <MainPortfolio />
 }
