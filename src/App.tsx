@@ -1,5 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import Lenis from 'lenis'
+import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import type { PanInfo } from 'motion/react'
 import './App.css'
@@ -13,7 +12,6 @@ import SocialsBar from './components/SocialsBar'
 import SandboxTeaser from './components/SandboxTeaser'
 import MoodboardCanvas from './components/MoodboardCanvas'
 import Sandbox from './pages/Sandbox'
-import Aurora from './pages/Aurora'
 import RevolutCard from './pages/RevolutCard'
 import RevolutEnv from './pages/RevolutEnv'
 
@@ -150,38 +148,13 @@ function MainPortfolio() {
 }
 
 export default function App() {
-  const path    = usePath()
-  const rafRef  = useRef<number>(0)
-  const lenisRef = useRef<Lenis | null>(null)
+  const path = usePath()
 
   useEffect(() => {
     window.scrollTo(0, 0)
-
-    if (path !== '/aurora') return
-
-    const lenis = new Lenis({
-      duration:        1.8,
-      easing:          (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel:     true,
-      wheelMultiplier: 0.6,
-    })
-    lenisRef.current = lenis
-
-    const raf = (time: number) => {
-      lenis.raf(time)
-      rafRef.current = requestAnimationFrame(raf)
-    }
-    rafRef.current = requestAnimationFrame(raf)
-
-    return () => {
-      cancelAnimationFrame(rafRef.current)
-      lenis.destroy()
-      lenisRef.current = null
-    }
   }, [path])
 
   if (path === '/sandbox') return <Sandbox />
-  if (path === '/aurora') return <Aurora />
   if (path === '/revolut-card') return <RevolutCard />
   if (path === '/env') return <RevolutEnv />
   return <MainPortfolio />

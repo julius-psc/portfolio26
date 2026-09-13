@@ -142,10 +142,21 @@ fn fbm2(p: vec2f) -> f32 {
     + valueNoise(p * 4.07 + vec2f(5.2, 1.4)) * 0.15;
 }
 
-fn thinFilmPearl(cosThetaI: f32, thicknessNm: f32, ior: f32, uv: vec2f) -> vec3f {
+/** Same corner palette — sampling coords sweep with reflection + film phase. */
+fn thinFilmPearl(
+  V: vec3f,
+  N: vec3f,
+  T: vec3f,
+  B: vec3f,
+  thicknessNm: f32,
+  ior: f32,
+  uv: vec2f,
+) -> vec3f {
+  let cosThetaI = max(dot(N, V), 0.0);
   let sin2i = max(1.0 - cosThetaI * cosThetaI, 0.0);
   let sin2t = sin2i / (ior * ior);
   let cosThetaT = sqrt(max(1.0 - sin2t, 0.0));
+  // Optical path difference through the coating (nm)
   let opd = 2.0 * ior * thicknessNm * cosThetaT;
 
   // Image-1 corner fields: orange / yellow / indigo / lime
@@ -154,17 +165,48 @@ fn thinFilmPearl(cosThetaI: f32, thicknessNm: f32, ior: f32, uv: vec2f) -> vec3f
   let cBL = vec3f(0.28, 0.32, 0.92);
   let cBR = vec3f(0.28, 0.95, 0.38);
 
-  let warp = (fbm2(uv * 1.1 + vec2f(0.3, 1.2)) - 0.5) * 0.22;
-  let wx = clamp(uv.x + warp, 0.0, 1.0);
-  // Mesh UV: v up — high y = top of card
-  let wy = clamp(uv.y + (fbm2(uv * 1.05 + vec2f(2.4, 0.6)) - 0.5) * 0.18, 0.0, 1.0);
-  let top = mix(cTL, cTR, smoothstep(0.05, 0.95, wx));
-  let bot = mix(cBL, cBR, smoothstep(0.05, 0.95, wx));
-  var pools = mix(bot, top, smoothstep(0.08, 0.92, wy));
+  // Reflection in tangent space. On a flat face Rt ≈ -Vt, so do NOT also add Vt
+  // or the two cancel and the pools stay glued to UV.
+  let R = reflect(-V, N);
+  let Rt = vec2f(dot(R, T), dot(R, B));
+  // Rest pose is pitch≈6°, yaw≈0 → Rt≈(0, -sin6). Subtract so idle matches the
+  // authored UV layout; motion is the delta from rest.
+  let restRt = vec2f(0.0, -0.1045);
 
-  // Slight view-dependent drift (thin-film), keep saturation high
-  let drift = (opd / 520.0 - 0.5) * 0.12 + (1.0 - cosThetaI) * 0.08;
-  pools = clamp(pools + vec3f(drift * 0.4, -drift * 0.15, -drift * 0.35), vec3f(0.0), vec3f(1.2));
+  // Physical-ish interference: phase wraps with angle / thickness so bands keep
+  // travelling instead of pinning at UV corners.
+  let phaseR = opd / 680.0;
+  let phaseG = opd / 550.0;
+  let phaseB = opd / 440.0;
+  let interf = vec3f(
+    0.5 + 0.5 * cos(phaseR * 6.2831853),
+    0.5 + 0.5 * cos(phaseG * 6.2831853),
+    0.5 + 0.5 * cos(phaseB * 6.2831853),
+  );
+  let interfShift = vec2f(
+    (interf.r - interf.b) * 0.34,
+    (interf.g - 0.5) * 0.38,
+  );
+
+  let warp = (fbm2(uv * 1.1 + vec2f(0.3, 1.2)) - 0.5) * 0.22;
+  let warpY = (fbm2(uv * 1.05 + vec2f(2.4, 0.6)) - 0.5) * 0.18;
+  let dR = Rt - restRt;
+  // Soft field — no hard clamp so reflection can slide pools across the face
+  let wx = uv.x + warp + dR.x * 1.35 + interfShift.x;
+  // Mesh UV: v up — high y = top of card
+  let wy = uv.y + warpY + dR.y * 1.25 + interfShift.y;
+
+  let top = mix(cTL, cTR, smoothstep(-0.05, 1.05, wx));
+  let bot = mix(cBL, cBR, smoothstep(-0.05, 1.05, wx));
+  var pools = mix(bot, top, smoothstep(-0.02, 1.02, wy));
+
+  // Mild spectral lean from interference, still within the same four hues
+  let lean = (interf.r - interf.b) * 0.18 + (1.0 - cosThetaI) * 0.12;
+  pools = clamp(
+    pools + vec3f(lean * 0.28, (interf.g - 0.5) * 0.14, -lean * 0.22),
+    vec3f(0.0),
+    vec3f(1.2),
+  );
   return pools;
 }
 
@@ -221,7 +263,7 @@ fn perturbNormal(
   let thickField = fbm2(input.uv * 1.05 + vec2f(0.3, 1.1));
   let thickness = material.film.x * (0.82 + 0.36 * thickField);
 
-  let pearl = thinFilmPearl(NdotV, thickness, material.film.y, input.uv);
+  let pearl = thinFilmPearl(V, N, T, B, thickness, material.film.y, input.uv);
   let baseF0 = material.baseF0.xyz * albedo;
   let grazing = pow(1.0 - NdotV, 1.25);
   // Iridescence only when studio light is on — off = bare stainless
