@@ -13,6 +13,15 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      // Articles get their own HTML entry so crawlers see per-page OG tags.
+      input: {
+        main: path.resolve(__dirname, "index.html"),
+        chromeIsARoom: path.resolve(__dirname, "artifacts/chrome-is-a-room/index.html"),
+      },
+    },
+  },
   server: {
     proxy: {
       '/api/deezer-preview': {

@@ -1,34 +1,31 @@
-import { IconArrowRight } from '@tabler/icons-react'
-import Text3DFlip from '@/components/ui/text-3d-flip'
+import ComponentName from '@/components/ComponentName'
+import SectionTitle from '@/components/SectionTitle'
+import { studies } from '@/sandbox/studies'
 
 export default function SandboxTeaser() {
   return (
     <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
-      <div className="flex flex-col gap-3 w-full max-w-[520px]">
-        <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">
-          [Sandbox]
-        </span>
-        <a
-          href="/sandbox"
-          onClick={(e) => {
-            e.preventDefault()
-            history.pushState(null, '', '/sandbox')
-            window.dispatchEvent(new PopStateEvent('popstate'))
-          }}
-          className="group flex items-center gap-1 w-fit"
-        >
-          <Text3DFlip
-            as="span"
-            className="text-sm font-medium text-primary tracking-[-0.01em] leading-none"
-            textClassName="text-primary"
-            flipTextClassName="text-primary"
-            rotateDirection="top"
-            staggerDuration={0.025}
-          >
-            View my component studies
-          </Text3DFlip>
-          <IconArrowRight size={13} className="text-primary transition-transform duration-150 group-hover:translate-x-0.5 shrink-0" />
-        </a>
+      <div className="flex flex-col gap-8 w-full max-w-[520px]">
+
+        <SectionTitle>Sandbox</SectionTitle>
+
+        <div className="flex flex-col gap-3">
+          {studies.map((study) => (
+            <a
+              key={study.id}
+              href={`/sandbox/${study.id}`}
+              onClick={(e) => {
+                e.preventDefault()
+                history.pushState(null, '', `/sandbox/${study.id}`)
+                window.dispatchEvent(new PopStateEvent('popstate'))
+              }}
+              className="w-fit text-sm font-medium text-primary tracking-[-0.01em]"
+            >
+              <ComponentName name={study.title} scramble />
+            </a>
+          ))}
+        </div>
+
       </div>
     </div>
   )

@@ -13,16 +13,46 @@ import type { FrameLoopHandle, Gpu } from 'vgpu'
 import { perspectiveCamera } from 'vgpu/scene'
 import cardShader from './card.wgsl'
 import presentShader from './present.wgsl'
-import { buildCardMesh, CARD_W } from './cardMesh'
+import { buildCardMesh, CARD_H, CARD_W } from './cardMesh'
 import { createStudioEnvironment } from './env/createEnv'
 import { bakeFaceMaps, uploadFaceMap } from './faceMaps'
-import { degToRad, mat4Identity, mat4RotateXYTranslate } from './math'
-import { createMotionState, setPointerTarget, stepMotion } from './motion'
+import { degToRad, mat4Identity, mat4RotateXYZTranslate } from './math'
+import {
+  applyKeyTilt,
+  createMotionState,
+  nudgePointerTarget,
+  setOrientationTarget,
+  setPointerTarget,
+  stepMotion,
+  type OrientationCalibration,
+} from './motion'
 
 /** ~35 mm equivalent vertical FOV (long-ish lens). */
 const FOV_DEG = 36
-/** Card fills ~28% of frame width at rest. */
-const FILL = 0.28
+/** Card fills ~28% of frame width on desktop fullscreen. */
+const FILL_DESKTOP = 0.28
+/** Larger on phones so the piece reads as the subject. */
+const FILL_MOBILE = 0.72
+/** Article embed — breathing room inside the dark frame. */
+export const FILL_EMBED = 0.48
+/** Frames taller than this turn the card upright; wider than PORTRAIT_EXIT turn it
+ * back. The gap is hysteresis so a drag-resize near square doesn't flip-flop. */
+const PORTRAIT_ENTER = 0.9
+const PORTRAIT_EXIT = 1.1
+/** Upright = rolled a quarter turn clockwise (as seen by the viewer). */
+const ROLL_PORTRAIT_DEG = -90
+/** Upright the card spans the long axis of a tall frame and reads oversized —
+ * pull it back by this share of the fill, eased in with the turn. */
+const UPRIGHT_SHRINK = 0.15
+/** Mid-turn the tilt settles to this share, so the rolling silhouette doesn't
+ * skew (screen-aligned tilt on a rotated rectangle reads as a wobble). */
+const TURN_TILT_KEEP = 0.25
+/** Pitch "breath" (deg) peaking mid-turn — carries the highlights across the
+ * face while the tilt is settled, then eases out as the card lands. */
+const TURN_BREATH_DEG = 6
+/** Roll spring — ~0.6 s with a whisper of overshoot. */
+const ROLL_STIFFNESS = 90
+const ROLL_DAMPING = 16
 /** Softbox fade speed (higher = snappier). */
 const LIGHTS_LERP = 5.5
 
@@ -36,14 +66,22 @@ const MATERIAL_STATIC = {
   film: [420, 1.42, 0.92, 0.35] as [number, number, number, number],
 }
 
-function cameraDistance(aspect: number): number {
-  const vfov = degToRad(FOV_DEG)
-  const hfov = 2 * Math.atan(Math.tan(vfov / 2) * aspect)
-  const visibleWidth = CARD_W / FILL
-  return visibleWidth / (2 * Math.tan(hfov / 2))
+/**
+ * Distance at which the card — rolled by `rollRad` — fills `fill` of the frame on
+ * its tighter axis. Fits the rolled bounding box, so corners never clip mid-turn.
+ */
+function cameraDistance(aspect: number, fill: number, rollRad = 0): number {
+  const c = Math.abs(Math.cos(rollRad))
+  const s = Math.abs(Math.sin(rollRad))
+  const boxW = c * CARD_W + s * CARD_H
+  const boxH = s * CARD_W + c * CARD_H
+  const halfTan = Math.tan(degToRad(FOV_DEG) / 2)
+  const byWidth = boxW / fill / (2 * halfTan * aspect)
+  const byHeight = boxH / fill / (2 * halfTan)
+  return Math.max(byWidth, byHeight)
 }
 
-function isMobileLike(): boolean {
+export function isMobileLike(): boolean {
   if (typeof window === 'undefined') return false
   return (
     window.matchMedia('(pointer: coarse)').matches ||
@@ -51,12 +89,51 @@ function isMobileLike(): boolean {
   )
 }
 
+function needsOrientationPermission(): boolean {
+  return (
+    typeof DeviceOrientationEvent !== 'undefined' &&
+    typeof (
+      DeviceOrientationEvent as unknown as {
+        requestPermission?: () => Promise<PermissionState>
+      }
+    ).requestPermission === 'function'
+  )
+}
+
 export interface RevolutCardOptions {
   /** Live target for studio softboxes — 1 = on, 0 = ambient only. */
   getLightsOn?: () => boolean
+  /** Called when WebGPU init fails — host should show the static fallback. */
+  onUnsupported?: (err: unknown) => void
+  /**
+   * iOS 13+ needs a user gesture for DeviceOrientation.
+   * Called with a function the UI can invoke from a tap.
+   */
+  onOrientationPermissionNeeded?: (request: () => Promise<boolean>) => void
+  /**
+   * Live override for how much of the frame the card fills on its tighter axis
+   * (e.g. tighter framing when docked in a panel). Defaults per variant.
+   */
+  getFill?: () => number | undefined
+  /**
+   * Live orientation override. Unset → decided from the canvas aspect (upright
+   * in tall frames). Hosts that know better — a side panel's drag width — force it.
+   */
+  getOrientation?: () => 'portrait' | 'landscape' | undefined
+  /**
+   * Live pixel lock: render the card's long edge at exactly this many CSS px,
+   * whatever the frame size or roll — resizing the frame then never scales the
+   * card, and turning it never refits. Overrides the fill framing when set.
+   */
+  getCardPx?: () => number | undefined
+  /**
+   * `embed` — article figure (larger fill, pointer only over canvas).
+   * `stage` — fullscreen demo (window pointer tracking).
+   */
+  variant?: 'embed' | 'stage'
 }
 
-/** Chrome card — stages 0–9. */
+/** Chrome card — stages 0–10. */
 export function startRevolutCard(
   canvas: HTMLCanvasElement,
   options: RevolutCardOptions = {},
@@ -67,12 +144,15 @@ export function startRevolutCard(
   let unsubResize: (() => void) | undefined
   const cleanups: Array<() => void> = []
   const getLightsOn = options.getLightsOn ?? (() => true)
+  const variant = options.variant ?? 'stage'
+  const embed = variant === 'embed'
 
   void (async () => {
     try {
       gpu = await init()
     } catch (err) {
       console.error('[revolut-card] WebGPU unavailable:', err)
+      options.onUnsupported?.(err)
       return
     }
     if (disposed) {
@@ -80,7 +160,6 @@ export function startRevolutCard(
       return
     }
 
-    // Load env + face maps in parallel (warm cache target < 1s)
     const [env, faceMaps] = await Promise.all([
       createStudioEnvironment(gpu),
       bakeFaceMaps(),
@@ -101,13 +180,14 @@ export function startRevolutCard(
     })
 
     const mobile = isMobileLike()
+    const baseFill = embed ? FILL_EMBED : mobile ? FILL_MOBILE : FILL_DESKTOP
+    const getFill = () => options.getFill?.() ?? baseFill
     const dprMax = mobile ? 1.5 : 2
     const canvasSurface = surface(gpu, canvas, { dpr: [1, dprMax] })
     const sceneTarget = target(gpu, {
       size: [canvasSurface.size[0], canvasSurface.size[1]],
       format: 'rgba16float',
       depth: true,
-      // MSAA is fill-heavy — keep on desktop, skip on phones
       msaa: !mobile,
     })
 
@@ -130,7 +210,26 @@ export function startRevolutCard(
     })
 
     const aspect0 = canvasSurface.size[0] / Math.max(1, canvasSurface.size[1])
-    const dist0 = cameraDistance(aspect0)
+    // Start already in the right orientation — no turn on first paint.
+    let aspect = aspect0
+    const forced = options.getOrientation?.()
+    let portrait = forced ? forced === 'portrait' : aspect0 < PORTRAIT_ENTER
+    let roll = portrait ? ROLL_PORTRAIT_DEG : 0
+    let rollVelocity = 0
+    let fill = getFill()
+    let cardPx = options.getCardPx?.()
+    let cssHeight = canvas.clientHeight
+
+    const computeDistance = () => {
+      if (cardPx && cssHeight > 0) {
+        // Long edge spans cardPx of cssHeight px of vertical view at this distance.
+        return (CARD_W * cssHeight) / (2 * Math.tan(degToRad(FOV_DEG) / 2) * cardPx)
+      }
+      const upright = Math.min(1, Math.abs(roll / ROLL_PORTRAIT_DEG))
+      const effectiveFill = fill * (1 - UPRIGHT_SHRINK * upright)
+      return cameraDistance(aspect, effectiveFill, degToRad(roll))
+    }
+    const dist0 = computeDistance()
     const cam = perspectiveCamera({
       fov: FOV_DEG,
       aspect: aspect0,
@@ -184,10 +283,8 @@ export function startRevolutCard(
       },
     })
 
-    unsubResize = canvasSurface.onResize(({ width, height }) => {
-      sceneTarget.resize([width, height])
-      const aspect = width / Math.max(1, height)
-      const dist = cameraDistance(aspect)
+    const updateCamera = () => {
+      const dist = computeDistance()
       cam.set({ aspect, position: [0, 0, dist] })
       card.set({
         camera: {
@@ -195,22 +292,167 @@ export function startRevolutCard(
           cameraPos: [0, 0, dist],
         },
       })
+    }
+
+    unsubResize = canvasSurface.onResize(({ width, height }) => {
+      sceneTarget.resize([width, height])
+      aspect = width / Math.max(1, height)
+      cssHeight = canvas.clientHeight
+      if (!options.getOrientation?.()) {
+        if (portrait ? aspect > PORTRAIT_EXIT : aspect < PORTRAIT_ENTER) portrait = !portrait
+      }
+      updateCamera()
     })
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const motion = createMotionState(performance.now(), { entrance: !reducedMotion })
+    const motion = createMotionState(performance.now())
 
-    const onPointer = (e: PointerEvent) => {
+    // --- Input: desktop pointer, mobile tilt / touch-drag, keyboard ---
+    let orientationActive = false
+    let orientationCalib: OrientationCalibration | null = null
+    let touchDragging = false
+    let lastTouchX = 0
+    let lastTouchY = 0
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (mobile) return
+      if (orientationActive) return
       setPointerTarget(motion, e.clientX, e.clientY, canvas.getBoundingClientRect())
     }
-    window.addEventListener('pointermove', onPointer, { passive: true })
-    cleanups.push(() => window.removeEventListener('pointermove', onPointer))
+    if (embed) {
+      canvas.addEventListener('pointermove', onPointerMove, { passive: true })
+      cleanups.push(() => canvas.removeEventListener('pointermove', onPointerMove))
+    } else {
+      window.addEventListener('pointermove', onPointerMove, { passive: true })
+      cleanups.push(() => window.removeEventListener('pointermove', onPointerMove))
+    }
+
+    const onDeviceOrientation = (e: DeviceOrientationEvent) => {
+      if (e.beta == null || e.gamma == null) return
+      if (!orientationCalib) {
+        orientationCalib = { beta: e.beta, gamma: e.gamma }
+      }
+      orientationActive = true
+      setOrientationTarget(motion, e.beta, e.gamma, orientationCalib)
+    }
+
+    const startOrientationListening = () => {
+      window.addEventListener('deviceorientation', onDeviceOrientation, true)
+      cleanups.push(() =>
+        window.removeEventListener('deviceorientation', onDeviceOrientation, true),
+      )
+    }
+
+    const requestOrientationPermission = async (): Promise<boolean> => {
+      try {
+        const DO = DeviceOrientationEvent as unknown as {
+          requestPermission?: () => Promise<PermissionState>
+        }
+        if (typeof DO.requestPermission === 'function') {
+          const state = await DO.requestPermission()
+          if (state !== 'granted') return false
+        }
+        startOrientationListening()
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    if (mobile) {
+      if (needsOrientationPermission()) {
+        options.onOrientationPermissionNeeded?.(requestOrientationPermission)
+      } else if (typeof DeviceOrientationEvent !== 'undefined') {
+        startOrientationListening()
+      }
+
+      // Touch-drag fallback (also works before / without tilt permission)
+      const onPointerDown = (e: PointerEvent) => {
+        if (orientationActive) return
+        if (e.pointerType === 'mouse') return
+        touchDragging = true
+        lastTouchX = e.clientX
+        lastTouchY = e.clientY
+        canvas.setPointerCapture(e.pointerId)
+      }
+      const onPointerDrag = (e: PointerEvent) => {
+        if (!touchDragging || orientationActive) return
+        const rect = canvas.getBoundingClientRect()
+        nudgePointerTarget(motion, e.clientX - lastTouchX, e.clientY - lastTouchY, rect)
+        lastTouchX = e.clientX
+        lastTouchY = e.clientY
+      }
+      const onPointerUp = (e: PointerEvent) => {
+        if (!touchDragging) return
+        touchDragging = false
+        try {
+          canvas.releasePointerCapture(e.pointerId)
+        } catch {
+          /* already released */
+        }
+      }
+      canvas.addEventListener('pointerdown', onPointerDown)
+      canvas.addEventListener('pointermove', onPointerDrag, { passive: true })
+      canvas.addEventListener('pointerup', onPointerUp)
+      canvas.addEventListener('pointercancel', onPointerUp)
+      cleanups.push(() => {
+        canvas.removeEventListener('pointerdown', onPointerDown)
+        canvas.removeEventListener('pointermove', onPointerDrag)
+        canvas.removeEventListener('pointerup', onPointerUp)
+        canvas.removeEventListener('pointercancel', onPointerUp)
+      })
+    }
+
+    const keysDown = new Set<string>()
+    const isArrow = (key: string) =>
+      key === 'ArrowLeft' ||
+      key === 'ArrowRight' ||
+      key === 'ArrowUp' ||
+      key === 'ArrowDown'
+    const isTypingTarget = (el: EventTarget | null) => {
+      if (!(el instanceof HTMLElement)) return false
+      const tag = el.tagName
+      return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || el.isContentEditable
+    }
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!isArrow(e.key) || e.repeat || isTypingTarget(e.target)) return
+      // Article embed: don't steal scroll — only when the canvas is focused
+      if (embed && document.activeElement !== canvas) return
+      keysDown.add(e.key)
+      e.preventDefault()
+    }
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (!isArrow(e.key)) return
+      keysDown.delete(e.key)
+    }
+    const onWindowBlur = () => keysDown.clear()
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('blur', onWindowBlur)
+    cleanups.push(() => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+      window.removeEventListener('blur', onWindowBlur)
+    })
+
+    const onDeviceLost = () => {
+      options.onUnsupported?.(new Error('WebGPU device lost'))
+    }
+    // Best-effort — vgpu may not expose adapter events; listen on canvas context if present
+    canvas.addEventListener('webgpucontextlost' as keyof HTMLElementEventMap, onDeviceLost as EventListener)
+    cleanups.push(() =>
+      canvas.removeEventListener(
+        'webgpucontextlost' as keyof HTMLElementEventMap,
+        onDeviceLost as EventListener,
+      ),
+    )
 
     const time = clock(gpu)
     let lastTime = time.time
     let prevLights = lightsAmount
     let prevShadowU = SHADOW_BASE_U
     let prevShadowV = SHADOW_BASE_V
+    let prevUpright = -1
 
     loop = frameLoop(gpu, (frame) => {
       const now = time.time
@@ -221,13 +463,54 @@ export function startRevolutCard(
       const lightsAlpha = reducedMotion ? 1 : 1 - Math.exp(-LIGHTS_LERP * dt)
       lightsAmount += (lightsTarget - lightsAmount) * lightsAlpha
 
+      applyKeyTilt(motion, keysDown, dt)
       const pose = stepMotion(motion, dt, performance.now(), reducedMotion)
-      mat4RotateXYTranslate(
+
+      // Turn upright in tall frames. The room stays put while the card rolls, so
+      // the reflections sweep across the face as it turns.
+      const forcedOrientation = options.getOrientation?.()
+      if (forcedOrientation) portrait = forcedOrientation === 'portrait'
+      const rollTarget = portrait ? ROLL_PORTRAIT_DEG : 0
+      const nextFill = getFill()
+      const rolling = Math.abs(rollTarget - roll) > 1e-3 || Math.abs(rollVelocity) > 1e-3
+      if (rolling) {
+        if (reducedMotion) {
+          roll = rollTarget
+          rollVelocity = 0
+        } else {
+          rollVelocity +=
+            (ROLL_STIFFNESS * (rollTarget - roll) - ROLL_DAMPING * rollVelocity) * dt
+          roll += rollVelocity * dt
+        }
+      }
+      const nextCardPx = options.getCardPx?.()
+      // A pixel-locked card keeps one distance through the turn — only refit
+      // when the framing inputs themselves change.
+      if ((rolling && !cardPx) || nextFill !== fill || nextCardPx !== cardPx) {
+        fill = nextFill
+        cardPx = nextCardPx
+        updateCamera()
+      }
+      // 0 = landscape, 1 = upright — swings the contact shadow with the card.
+      const upright = Math.min(1, Math.abs(roll / ROLL_PORTRAIT_DEG))
+
+      // One continuous gesture: tilt fades out as the card turns and returns as it
+      // lands (0 at either rest, 1 at the quarter-turn midpoint), with a breath of
+      // pitch in between. Scaling the pose also damps pointer input mid-turn.
+      const midTurn = Math.sin(Math.PI * upright)
+      const tiltScale = 1 - (1 - TURN_TILT_KEEP) * midTurn
+      const pitch = pose.pitch * tiltScale + TURN_BREATH_DEG * midTurn
+      const yaw = pose.yaw * tiltScale
+      const offsetX = pose.offsetX * tiltScale
+      const offsetY = pose.offsetY * tiltScale
+
+      mat4RotateXYZTranslate(
         modelMat,
-        degToRad(pose.pitch),
-        degToRad(pose.yaw),
-        pose.offsetX,
-        pose.offsetY,
+        degToRad(pitch),
+        degToRad(yaw),
+        degToRad(roll),
+        offsetX,
+        offsetY,
         pose.offsetZ,
       )
       normalMat.set(modelMat)
@@ -235,8 +518,8 @@ export function startRevolutCard(
       normalMat[13] = 0
       normalMat[14] = 0
 
-      const shadowU = SHADOW_BASE_U + pose.offsetX * 0.004
-      const shadowV = SHADOW_BASE_V - pose.offsetY * 0.004 + pose.offsetZ * 0.0015
+      const shadowU = SHADOW_BASE_U + offsetX * 0.004
+      const shadowV = SHADOW_BASE_V - offsetY * 0.004 + pose.offsetZ * 0.0015
 
       card.set({
         model: { model: modelMat, normalMatrix: normalMat },
@@ -249,14 +532,16 @@ export function startRevolutCard(
       if (
         Math.abs(lightsAmount - prevLights) > 1e-4 ||
         Math.abs(shadowU - prevShadowU) > 1e-5 ||
-        Math.abs(shadowV - prevShadowV) > 1e-5
+        Math.abs(shadowV - prevShadowV) > 1e-5 ||
+        Math.abs(upright - prevUpright) > 1e-4
       ) {
         present.set({
-          present: { shadow: [shadowU, shadowV, lightsAmount, 0] },
+          present: { shadow: [shadowU, shadowV, lightsAmount, upright] },
         })
         prevLights = lightsAmount
         prevShadowU = shadowU
         prevShadowV = shadowV
+        prevUpright = upright
       }
 
       frame.pass(

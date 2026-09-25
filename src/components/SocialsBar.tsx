@@ -1,14 +1,35 @@
-import { IconArrowUpRight, IconArrowRight } from '@tabler/icons-react';
+import { IconArrowRight } from '@tabler/icons-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Text3DFlip from '@/components/ui/text-3d-flip';
 import githubIcon from '../assets/icons/github.svg';
 import linkedinIcon from '../assets/icons/linkedin.svg';
 import xIcon from '../assets/icons/x.svg';
-import resumePdf from '../assets/documents/resume.pdf';
+import { copied as copiedSound } from '@/lib/sounds';
+
+const EMAIL = 'peschardjulius03@gmail.com';
 
 export default function SocialsBar() {
   const [visible, setVisible] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copiedTimer = useRef(0);
+
+  useEffect(() => () => window.clearTimeout(copiedTimer.current), []);
+
+  // The CTA above opens a draft; the address itself copies, for people who
+  // write from somewhere other than their default mail app.
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(EMAIL);
+    } catch {
+      window.location.href = `mailto:${EMAIL}`;
+      return;
+    }
+    copiedSound();
+    setCopied(true);
+    window.clearTimeout(copiedTimer.current);
+    copiedTimer.current = window.setTimeout(() => setCopied(false), 1600);
+  };
 
   useEffect(() => {
     const onScroll = () => setVisible(window.scrollY > 80);
@@ -27,7 +48,7 @@ export default function SocialsBar() {
           {/* Clip wrapper — hides CTA until it slides up */}
           <div className="overflow-hidden w-full flex justify-center">
             <motion.a
-              href="mailto:peschardjulius03@gmail.com"
+              href={`mailto:${EMAIL}`}
               className="bg-accent rounded-tl-lg rounded-tr-lg px-4 py-2 flex items-center gap-2 w-fit"
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -50,20 +71,38 @@ export default function SocialsBar() {
 
           {/* Main bar */}
           <motion.div
-            className="bg-base border border-white/[0.08] rounded-lg px-5 py-3 flex items-center gap-5 sm:gap-8 min-w-[260px] sm:min-w-0"
+            className="bg-base border border-white/[0.08] rounded-lg px-5 py-3 flex items-center justify-center gap-5 sm:gap-8 min-w-[260px] sm:min-w-0"
             initial={{ y: 24, scale: 0.97 }}
             animate={{ y: 0, scale: 1 }}
             exit={{ y: 120, transition: { type: 'spring', stiffness: 200, damping: 32, delay: 0.42 } }}
             transition={{ type: 'spring', stiffness: 420, damping: 32 }}
           >
 
-            {/* Email — hidden on mobile */}
-            <a
-              href="mailto:peschardjulius03@gmail.com"
-              className="hidden sm:inline text-primary text-sm font-medium opacity-60 hover:opacity-100 transition-opacity duration-150 whitespace-nowrap selectable"
+            {/* Email (copies on click) — hidden on mobile. Both labels share one
+                grid cell, so the bar keeps the address's width while they swap. */}
+            <button
+              type="button"
+              onClick={copyEmail}
+              title="Copy email"
+              className="hidden sm:inline-grid cursor-pointer text-primary text-sm font-medium opacity-60 hover:opacity-100 transition-opacity duration-150 whitespace-nowrap selectable"
             >
-              peschardjulius03@gmail.com
-            </a>
+              <span
+                className="[grid-area:1/1] transition-[opacity,filter] duration-200 ease-ui"
+                style={{ opacity: copied ? 0 : 1, filter: copied ? 'blur(2px)' : 'none' }}
+              >
+                {EMAIL}
+              </span>
+              <span
+                aria-hidden
+                className="[grid-area:1/1] text-center transition-[opacity,filter] duration-200 ease-ui"
+                style={{ opacity: copied ? 1 : 0, filter: copied ? 'none' : 'blur(2px)' }}
+              >
+                Copied to clipboard
+              </span>
+              <span aria-live="polite" className="sr-only">
+                {copied ? 'Email copied' : ''}
+              </span>
+            </button>
 
             {/* Social icons */}
             <div className="flex items-center gap-4">
@@ -92,17 +131,6 @@ export default function SocialsBar() {
                 <img src={xIcon} alt="X" className="w-4 h-4 invert" />
               </a>
             </div>
-
-            {/* Resume */}
-            <a
-              href={resumePdf}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 text-primary text-sm font-medium opacity-60 hover:opacity-100 transition-opacity duration-150 whitespace-nowrap ml-auto sm:ml-0"
-            >
-              Resume
-              <IconArrowUpRight size={14} className="shrink-0" />
-            </a>
 
           </motion.div>
         </motion.div>

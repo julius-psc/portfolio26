@@ -1,11 +1,12 @@
 import { EncryptedText } from '@/components/ui/encrypted-text'
+import SectionTitle from '@/components/SectionTitle'
 
 export default function Education() {
   return (
     <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
       <div className="flex flex-col gap-8 w-full max-w-[520px]">
 
-        <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">[Education]</span>
+        <SectionTitle>Education</SectionTitle>
 
         <div className="flex flex-col gap-1">
           <div className="flex items-baseline justify-between">

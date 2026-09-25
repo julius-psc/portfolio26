@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion, AnimatePresence, animate, useMotionValue, useReducedMotion } from 'motion/react'
 import type { PanInfo } from 'motion/react'
 import './App.css'
 import profilePic from './assets/images/profile-pic.png'
@@ -7,15 +7,38 @@ import Intro from './components/Intro'
 import Education from './components/Education'
 import Experience from './components/Experience'
 import Projects from './components/Projects'
-import HalftoneFlickerBanner from './components/HalftoneFlickerBanner'
+import Artifacts from './components/Artifacts'
 import SocialsBar from './components/SocialsBar'
 import SandboxTeaser from './components/SandboxTeaser'
 import MoodboardCanvas from './components/MoodboardCanvas'
-import Sandbox from './pages/Sandbox'
+import Sandbox, { SandboxStudy } from './pages/Sandbox'
+import { studies } from './sandbox/studies'
 import RevolutCard from './pages/RevolutCard'
 import RevolutEnv from './pages/RevolutEnv'
+import { EASE_UI } from './revolut-card/motionTokens'
+import { slingshot } from './lib/sounds'
 
 const PULL_THRESHOLD = 72
+// Spring the avatar snaps back on when a drag is released. The idle hint
+// returns on it too, so the hint looks exactly like letting go.
+const SNAP_BACK = { stiffness: 480, damping: 22 }
+
+// Idle hint: every so often the avatar slides out of its dotted ring, holds,
+// and snaps back — until the visitor has dragged it themselves.
+const HINT_FIRST_DELAY = 2500
+const HINT_INTERVAL = 8000
+const HINT_PULL = 16
+const HINT_PULL_MS = 450
+const HINT_HOLD_MS = 200
+const HINT_ANGLE_STEP = Math.PI * (3 - Math.sqrt(5)) // golden angle, ≈137.5°
+
+// Dotted ring 4px outside the 56px avatar, dotted like the article's back link.
+const RING_RADIUS = 32
+const RING_BOX = RING_RADIUS * 2 + 2
+// ~4px between dots, stretched so a whole number fits the circumference —
+// otherwise two dots bunch up where the path closes.
+const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS
+const RING_DOT_GAP = RING_CIRCUMFERENCE / Math.round(RING_CIRCUMFERENCE / 4)
 
 function usePath() {
   const [path, setPath] = useState(window.location.pathname)
@@ -29,29 +52,115 @@ function usePath() {
 
 function ProfileCard({ onSlingshot, isPersonal }: { onSlingshot: () => void; isPersonal: boolean }) {
   const [isDragging, setIsDragging] = useState(false)
+  const x = useMotionValue(0)
+  const y = useMotionValue(0)
+  const reduceMotion = useReducedMotion()
+  // Refs, not state: the hint loop reads them and nothing re-renders on them.
+  const hasDragged = useRef(false)
+  const isHovered = useRef(false)
+
+  useEffect(() => {
+    if (reduceMotion) return
+    let timer = 0
+    let cancelled = false
+    // Stay still while the pointer is on it (a hand is already there) or the
+    // tab is hidden; stop for good once they've found the drag.
+    const idle = () => !cancelled && !hasDragged.current && !isHovered.current && !document.hidden
+
+    const next = () => {
+      if (!cancelled && !hasDragged.current) timer = window.setTimeout(tug, HINT_INTERVAL)
+    }
+
+    // Timed rather than awaited: a tap can interrupt the pull, and the return
+    // must still run or the avatar would sit off-centre.
+    const release = () => {
+      // A real drag may have grabbed the values mid-pull; leave them to it.
+      if (!hasDragged.current) {
+        const snap = { type: 'spring', ...SNAP_BACK } as const
+        animate(x, 0, snap)
+        animate(y, 0, snap)
+      }
+      next()
+    }
+
+    // Golden-angle steps from a random start: every tug heads somewhere clearly
+    // different from the last, and the sequence never settles into a pattern.
+    let angle = Math.random() * Math.PI * 2
+
+    const tug = () => {
+      if (!idle()) return next()
+      angle += HINT_ANGLE_STEP
+      const dx = Math.cos(angle)
+      // Tugs towards the name travel half as far, so the avatar never lands on it.
+      const distance = HINT_PULL * (dx > 0 ? 1 - dx / 2 : 1)
+      const pull = { duration: HINT_PULL_MS / 1000, ease: EASE_UI }
+      animate(x, dx * distance, pull)
+      animate(y, Math.sin(angle) * distance, pull)
+      timer = window.setTimeout(release, HINT_PULL_MS + HINT_HOLD_MS)
+    }
+
+    timer = window.setTimeout(tug, HINT_FIRST_DELAY)
+    return () => {
+      cancelled = true
+      window.clearTimeout(timer)
+    }
+  }, [reduceMotion, x, y])
+
+  function handleDragStart() {
+    hasDragged.current = true
+    setIsDragging(true)
+  }
 
   function handleDragEnd(_: PointerEvent, info: PanInfo) {
     setIsDragging(false)
-    if (Math.hypot(info.offset.x, info.offset.y) > PULL_THRESHOLD) onSlingshot()
+    if (Math.hypot(info.offset.x, info.offset.y) > PULL_THRESHOLD) {
+      slingshot()
+      onSlingshot()
+    }
   }
 
   return (
-    <div className="flex items-center gap-3">
-      <motion.img
-        src={profilePic}
-        alt="Julius Peschard"
-        draggable={false}
-        className={`w-14 h-14 rounded-full object-cover shrink-0 ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
-        drag
-        dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
-        dragElastic={0.1}
-        dragMomentum={false}
-        dragTransition={{ bounceStiffness: 480, bounceDamping: 22 }}
-        onDragStart={() => setIsDragging(true)}
-        onDragEnd={handleDragEnd}
-        whileTap={{ scale: 0.93 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
-      />
+    <div className="flex items-center gap-4">
+      {/* The ring stays put while the avatar is pulled, so it reads as the
+          socket the slingshot springs back into. */}
+      <div className="relative shrink-0">
+        <svg
+          aria-hidden
+          className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+          width={RING_BOX}
+          height={RING_BOX}
+          viewBox={`0 0 ${RING_BOX} ${RING_BOX}`}
+        >
+          <circle
+            cx={RING_BOX / 2}
+            cy={RING_BOX / 2}
+            r={RING_RADIUS}
+            fill="none"
+            strokeWidth="1.25"
+            strokeLinecap="round"
+            strokeDasharray={`0 ${RING_DOT_GAP}`}
+            style={{ stroke: 'color-mix(in oklch, var(--color-primary) 28%, transparent)' }}
+          />
+        </svg>
+        <motion.img
+          src={profilePic}
+          alt="Julius Peschard"
+          draggable={false}
+          className={`block w-14 h-14 rounded-full object-cover ${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+          style={{ x, y }}
+          onHoverStart={() => (isHovered.current = true)}
+          onHoverEnd={() => (isHovered.current = false)}
+          drag
+          dragConstraints={{ top: 0, left: 0, right: 0, bottom: 0 }}
+          dragElastic={0.1}
+          dragMomentum={false}
+          dragTransition={{ bounceStiffness: SNAP_BACK.stiffness, bounceDamping: SNAP_BACK.damping }}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          whileTap={{ scale: 0.93 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+        />
+      </div>
       <div className="flex flex-col gap-0.5">
         <span className="text-base font-semibold text-primary tracking-[-0.01em] whitespace-nowrap">
           Julius Peschard
@@ -122,18 +231,9 @@ function MainPortfolio() {
             transition={{ type: 'spring', stiffness: 260, damping: 30 }}
           >
             <Intro />
-            <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
-              <div className="w-full max-w-[520px]">
-                <HalftoneFlickerBanner height={48} />
-              </div>
-            </div>
             <Experience />
-            <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
-              <div className="w-full max-w-[520px]">
-                <HalftoneFlickerBanner height={48} />
-              </div>
-            </div>
             <Projects />
+            <Artifacts />
             <SandboxTeaser />
             <Education />
           </motion.main>
@@ -155,7 +255,9 @@ export default function App() {
   }, [path])
 
   if (path === '/sandbox') return <Sandbox />
-  if (path === '/revolut-card') return <RevolutCard />
+  const study = studies.find((s) => path === `/sandbox/${s.id}`)
+  if (study) return <SandboxStudy study={study} />
+  if (path === '/artifacts/chrome-is-a-room') return <RevolutCard />
   if (path === '/env') return <RevolutEnv />
   return <MainPortfolio />
 }

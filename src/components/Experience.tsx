@@ -1,22 +1,19 @@
-import { IconArrowLoopRight2, IconArrowUpRight } from '@tabler/icons-react'
+import { IconArrowLoopRight2 } from '@tabler/icons-react'
 import { EncryptedText } from '@/components/ui/encrypted-text'
+import SectionTitle from '@/components/SectionTitle'
 
 const experiences = [
   {
     company: 'Digeto',
     role: 'Design Engineer',
     period: 'Current',
-    accent: '#FA30FF',
-    href: 'https://digeto.io',
     description: "Leading design and build on Digeto's GTM Engine: sketching the tier-based client portal from information architecture through to production.",
     highlights: [],
   },
   {
-    company: 'XSTREAM',
+    company: 'LyraTech LLC',
     role: 'Lead Product Designer',
     period: 'Current',
-    accent: null,
-    href: null,
     description: 'Leading the design of the MVP: brand identity, design system with a custom three-tier semantic token architecture, component library, user flows, and wireframes through to dev handoff.',
     highlights: [],
   },
@@ -24,8 +21,6 @@ const experiences = [
     company: 'Chiens en Cavale',
     role: 'Design Engineer',
     period: '2024–2025',
-    accent: null,
-    href: null,
     description: 'Built a full-stack reservation platform solo for a dog-walking non-profit serving senior and disabled people, from architecture through to production.',
     highlights: [
       '100+ users nationwide.',
@@ -39,39 +34,21 @@ export default function Experience() {
     <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
       <div className="flex flex-col gap-8 w-full max-w-[520px]">
 
-        <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">[Experience]</span>
+        <SectionTitle>Experience</SectionTitle>
 
         <div className="flex flex-col gap-8">
           {experiences.map((exp) => (
             <div key={exp.company} className="flex flex-col gap-1">
 
               <div className="flex items-baseline justify-between">
-                <div className="flex items-center gap-1">
-                  {exp.href ? (
-                    <a href={exp.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center">
-                      <EncryptedText
-                        text={exp.company}
-                        className="text-sm font-medium tracking-[-0.01em]"
-                        encryptedClassName="text-primary"
-                        revealedClassName="text-primary"
-                        revealDelayMs={40}
-                        flipDelayMs={40}
-                      />
-                    </a>
-                  ) : (
-                    <EncryptedText
-                      text={exp.company}
-                      className="text-sm font-medium tracking-[-0.01em]"
-                      encryptedClassName="text-primary"
-                      revealedClassName="text-primary"
-                      revealDelayMs={40}
-                      flipDelayMs={40}
-                    />
-                  )}
-                  {exp.accent && (
-                    <IconArrowUpRight size={14} style={{ color: exp.accent }} className="shrink-0 translate-y-px" />
-                  )}
-                </div>
+                <EncryptedText
+                  text={exp.company}
+                  className="text-sm font-medium tracking-[-0.01em]"
+                  encryptedClassName="text-primary"
+                  revealedClassName="text-primary"
+                  revealDelayMs={40}
+                  flipDelayMs={40}
+                />
                 <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">{exp.period}</span>
               </div>
 

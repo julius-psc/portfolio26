@@ -309,3 +309,12 @@ export function uploadFaceMap(gpu: Gpu, data: ImageData, label: string): Texture
   )
   return tex
 }
+
+/** Flat face still for the no-WebGPU fallback. */
+export function albedoToDataUrl(albedo: ImageData): string {
+  const canvas = document.createElement('canvas')
+  canvas.width = albedo.width
+  canvas.height = albedo.height
+  canvas.getContext('2d')!.putImageData(albedo, 0, 0)
+  return canvas.toDataURL('image/jpeg', 0.92)
+}

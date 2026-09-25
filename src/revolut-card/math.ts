@@ -81,3 +81,32 @@ export function mat4RotateXYTranslate(
 export function degToRad(d: number): number {
   return (d * Math.PI) / 180
 }
+
+const scratchRX = new Float32Array(16)
+const scratchRY = new Float32Array(16)
+const scratchRZ = new Float32Array(16)
+const scratchXY = new Float32Array(16)
+
+/**
+ * (Rx * Ry) * Rz, then translation. Rz rolls the card in its own plane first, so
+ * pitch/yaw tilt stays screen-aligned whichever way the card is turned.
+ */
+export function mat4RotateXYZTranslate(
+  out: Mat4,
+  radX: number,
+  radY: number,
+  radZ: number,
+  tx: number,
+  ty: number,
+  tz: number,
+): Mat4 {
+  const c = Math.cos(radZ)
+  const s = Math.sin(radZ)
+  scratchRZ.set([c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1])
+  mat4Multiply(scratchXY, mat4RotateX(scratchRX, radX), mat4RotateY(scratchRY, radY))
+  mat4Multiply(out, scratchXY, scratchRZ)
+  out[12] = tx
+  out[13] = ty
+  out[14] = tz
+  return out
+}

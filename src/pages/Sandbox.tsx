@@ -1,6 +1,10 @@
+import type { ReactNode } from 'react'
 import { IconArrowLeft } from '@tabler/icons-react'
 import { motion } from 'motion/react'
-import { studies } from '../sandbox/studies'
+import { studies, type Study } from '../sandbox/studies'
+import { usePageShift } from '@/components/artifact-panel/usePageShift'
+import ComponentName from '@/components/ComponentName'
+import { BackLink, P, SectionTitle } from '@/components/essay/Essay'
 
 const container = {
   hidden: {},
@@ -12,99 +16,108 @@ const item = {
   show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 28 } },
 }
 
+function navigate(path: string) {
+  history.pushState(null, '', path)
+  window.dispatchEvent(new PopStateEvent('popstate'))
+}
+
+function BackButton() {
+  return (
+    <button
+      onClick={() => navigate('/')}
+      className="flex items-center gap-1.5 text-xs font-medium text-primary opacity-40 hover:opacity-100 transition-opacity w-fit"
+    >
+      <IconArrowLeft size={12} />
+      Back
+    </button>
+  )
+}
+
+function Column({ children }: { children: ReactNode }) {
+  return (
+    <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
+      <motion.div
+        className="flex flex-col gap-14 w-full max-w-[640px]"
+        variants={container}
+        initial="hidden"
+        animate="show"
+      >
+        {children}
+      </motion.div>
+    </div>
+  )
+}
+
+/** /sandbox — index of the studies, each opening on its own page. */
 export default function Sandbox() {
   return (
     <main className="min-h-screen bg-surface dark:bg-base pb-32">
-      <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
-        <motion.div
-          className="flex flex-col gap-14 w-full max-w-[640px]"
-          variants={container}
-          initial="hidden"
-          animate="show"
-        >
-          {/* Header */}
-          <motion.div variants={item} className="flex flex-col gap-5">
-            <button
-              onClick={() => {
-                history.pushState(null, '', '/')
-                window.dispatchEvent(new PopStateEvent('popstate'))
-              }}
-              className="flex items-center gap-1.5 text-xs font-medium text-primary opacity-40 hover:opacity-100 transition-opacity w-fit"
-            >
-              <IconArrowLeft size={12} />
-              Back
-            </button>
+      <Column>
+        {/* Header */}
+        <motion.div variants={item} className="flex flex-col gap-5">
+          <BackButton />
 
-            <div className="flex flex-col gap-3">
-              <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">
-                [Sandbox]
-              </span>
-              <p className="text-sm font-medium text-primary tracking-[-0.01em]">
-                Live components built alongside real products, each with a breakdown of the thinking behind it.
-              </p>
-            </div>
-          </motion.div>
-
-          {/* Studies */}
-          <div className="flex flex-col gap-14">
-            {studies.length === 0 && (
-              <motion.div variants={item} className="flex flex-col gap-4 blur-[3px] opacity-40 pointer-events-none select-none">
-                <div className="dark w-full h-52 rounded-xl bg-base border border-white/[0.06]" />
-                <div className="flex items-baseline justify-between gap-4">
-                  <span className="text-sm font-semibold text-primary tracking-[-0.01em]">Magnetic Button</span>
-                  <span className="text-xs font-medium text-primary opacity-30 shrink-0 tracking-[-0.01em]">Jun 2026</span>
-                </div>
-                <div className="flex flex-wrap gap-1.5">
-                  {['spring-physics', 'cursor', 'motion-values'].map(tag => (
-                    <span key={tag} className="text-[10px] font-mono text-primary opacity-50 bg-zinc-900/[0.06] dark:bg-white/[0.06] rounded px-2 py-0.5 tracking-wide">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-                <p className="text-sm font-medium text-primary opacity-50 tracking-[-0.01em] leading-[1.65]">
-                  Tracks the cursor distance from the button center using a mousemove listener on the parent container. The offset is fed into motion values wrapped with useSpring — the spring handles the snap-back on mouse leave with no keyframes or duration needed.
-                </p>
-              </motion.div>
-            )}
-            {studies.map(study => {
-              const Component = study.component
-              return (
-                <motion.div key={study.id} variants={item} className="flex flex-col gap-4">
-                  {/* Live preview — always dark so components render correctly */}
-                  <div className={`w-full rounded-xl bg-surface-panel border border-black/[0.06] overflow-hidden ${study.previewClassName ?? 'h-52'}`}>
-                    <Component />
-                  </div>
-
-                  {/* Title */}
-                  <span className="text-sm font-semibold text-primary tracking-[-0.01em]">
-                    {study.title}
-                  </span>
-
-                  {/* Sections */}
-                  <div className="flex flex-col gap-6">
-                    {study.sections.map((section, i) => (
-                      <div key={i} className="flex flex-col gap-2">
-                        {section.heading && (
-                          <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">
-                            {section.heading}
-                          </span>
-                        )}
-                        <div className="flex flex-col gap-3">
-                          {section.node ?? section.body?.split('\n\n').map((para, j) => (
-                            <p key={j} className="text-sm font-medium text-primary opacity-50 tracking-[-0.01em] leading-[1.65]">
-                              {para}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )
-            })}
+          <div className="flex flex-col gap-3">
+            <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">
+              [Sandbox]
+            </span>
+            <p className="text-sm font-medium text-primary tracking-[-0.01em]">
+              Live components built alongside real products, each with a breakdown of the thinking behind it.
+            </p>
           </div>
         </motion.div>
-      </div>
+
+        {/* Studies */}
+        <div className="flex flex-col gap-3">
+          {studies.map(study => (
+            <motion.a
+              key={study.id}
+              variants={item}
+              href={`/sandbox/${study.id}`}
+              onClick={(e) => {
+                e.preventDefault()
+                navigate(`/sandbox/${study.id}`)
+              }}
+              className="text-sm font-semibold text-primary tracking-[-0.01em] w-fit"
+            >
+              <ComponentName name={study.title} />
+            </motion.a>
+          ))}
+        </div>
+      </Column>
+    </main>
+  )
+}
+
+/** /sandbox/:id — one study, set like the essay: the thinking behind it,
+ * closed by the live component (liftable into the artifact panel). */
+export function SandboxStudy({ study }: { study: Study }) {
+  // A side-docked panel pushes the page aside instead of covering it.
+  const shift = usePageShift()
+  const Component = study.component
+
+  return (
+    <main
+      className="min-h-dvh bg-surface dark:bg-base"
+      style={{
+        WebkitFontSmoothing: 'antialiased',
+        paddingLeft: shift.left,
+        paddingRight: shift.right,
+        transition: `padding ${shift.glide}`,
+      }}
+    >
+      <article className="mx-auto w-full max-w-[640px] px-5 pb-24 pt-16 sm:px-6 sm:pt-20">
+        <BackLink />
+        <SectionTitle as="h1" first>
+          <ComponentName name={study.title} />
+        </SectionTitle>
+
+        {study.body.map((para, i) => (
+          <P key={i}>{para}</P>
+        ))}
+
+        <Component onDockChange={shift.onDockChange} />
+      </article>
     </main>
   )
 }

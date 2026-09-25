@@ -28,6 +28,7 @@ export function ApprovalQueue({
   } = useApprovalQueue({ requests, onApprove, onDeny, onModify, resolveDelayMs });
 
   const pendingIdRef = useRef<string | null>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   function handleClick(id: string) {
     if (id === activeId) return;
@@ -43,6 +44,9 @@ export function ApprovalQueue({
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement) return;
+      // Only while the queue is in use (pointer over it, or focus inside it) —
+      // otherwise it would swallow the page's arrow-key scrolling.
+      if (!rootRef.current?.matches(":hover, :focus-within")) return;
 
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
@@ -71,7 +75,7 @@ export function ApprovalQueue({
   }
 
   return (
-    <div data-nudge="approval-queue" className="w-fit flex flex-col" style={{ gap: "8px" }}>
+    <div ref={rootRef} data-nudge="approval-queue" className="w-fit flex flex-col" style={{ gap: "8px" }}>
       <AnimatePresence initial={false} mode="popLayout">
         {items.map((item) => (
           <motion.div

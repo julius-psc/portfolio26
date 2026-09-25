@@ -66,6 +66,8 @@
   --color-surface: oklch(0.971 0.002 270);  /* #F5F5F7 */
   --color-base:    oklch(0.220 0.004 285);  /* #121214 */
   --color-accent:  oklch(0.729 0.184 352);  /* #F96AAF */
+  /* Strong ease-out for UI — Tailwind's own --ease-out is too weak to feel. */
+  --ease-ui: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* text-primary adapts to context: dark text on light bg, light on dark */
@@ -166,10 +168,12 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Unlayered, so this beats Tailwind's transition-* utilities — colour
+   transitions are listed here rather than via `transition-colors`. */
 .btn-press {
-  transition-property: transform;
-  transition-duration: 0.1s;
-  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  transition-property: transform, color, background-color;
+  transition-duration: 0.1s, 0.15s, 0.15s;
+  transition-timing-function: var(--ease-ui);
 }
 .btn-press:active {
   transform: scale(0.96);
@@ -179,8 +183,12 @@ body {
   user-select: text;
 }
 
-button {
-  cursor: pointer;
+/* In the base layer so utilities (e.g. cursor-grab) can still override it —
+   unlayered rules beat every Tailwind layer regardless of specificity. */
+@layer base {
+  button {
+    cursor: pointer;
+  }
 }
 
 img {

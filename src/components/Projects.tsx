@@ -1,14 +1,34 @@
-import { IconArrowUpRight } from '@tabler/icons-react'
+import { IconArrowLoopRight2, IconArrowUpRight } from '@tabler/icons-react'
 import { EncryptedText } from '@/components/ui/encrypted-text'
+import SectionTitle from '@/components/SectionTitle'
 
-const projects = [
+type Project = {
+  name: string
+  /** Omitted on an engine — it shares its platform's role and period. */
+  role?: string
+  period?: string
+  accent: string | null
+  href: string | null
+  description: string
+  /** What the project is built on — rendered nested beneath it. */
+  engine?: Project
+}
+
+const projects: Project[] = [
   {
-    name: 'Shotoku',
+    name: 'Cappr',
     role: 'Co-Founder',
     period: 'Current',
-    accent: '#F93743',
-    href: 'https://shotoku.dev',
-    description: 'Co-founding Shotoku — the open-source, local-first spend control for AI agents. Designed the brand identity, built the landing page, and implemented the TUI in TypeScript. Exploring agent-to-agent transactions and x402.',
+    // Follows the theme's text colour: black in light mode, white in dark.
+    accent: 'var(--color-primary)',
+    href: 'https://cappr.shotoku.dev',
+    description: 'The spend control plane for autonomous agents. Leading product and GTM.',
+    engine: {
+      name: 'Shotoku',
+      accent: '#F93743',
+      href: 'https://shotoku.dev',
+      description: 'The open-source, local-first engine Cappr runs on. Exploring agent-to-agent transactions and x402.',
+    },
   },
   {
     name: 'Flowivate',
@@ -28,53 +48,75 @@ const projects = [
   },
 ]
 
+function ProjectEntry({ project }: { project: Project }) {
+  return (
+    <div className="flex flex-col gap-1">
+
+      <div className="flex items-baseline justify-between">
+        {project.href ? (
+          <a href={project.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 cursor-pointer">
+            <EncryptedText
+              text={project.name}
+              className="text-sm font-medium tracking-[-0.01em]"
+              encryptedClassName="text-primary"
+              revealedClassName="text-primary"
+              revealDelayMs={40}
+              flipDelayMs={40}
+            />
+            {project.accent && (
+              <IconArrowUpRight size={14} style={{ color: project.accent }} className="shrink-0 translate-y-[1px]" />
+            )}
+          </a>
+        ) : (
+          <EncryptedText
+            text={project.name}
+            className="text-sm font-medium tracking-[-0.01em]"
+            encryptedClassName="text-primary opacity-30"
+            revealedClassName="text-primary"
+            revealDelayMs={40}
+            flipDelayMs={40}
+          />
+        )}
+        {project.period && (
+          <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">{project.period}</span>
+        )}
+      </div>
+
+      {project.role && (
+        <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">{project.role}</span>
+      )}
+
+      <p className="text-sm font-medium text-primary tracking-[-0.01em] mt-1">
+        {project.description}
+      </p>
+
+      {/* The engine hangs off its platform on the same elbow and indent as the
+          experience highlights, so it reads as part of the project above. */}
+      {project.engine && (
+        <div className="mt-1 flex items-start gap-1.5 pl-4">
+          <IconArrowLoopRight2
+            size={12}
+            aria-hidden
+            className="shrink-0 mt-1 scale-y-[-1] text-primary opacity-50"
+          />
+          <ProjectEntry project={project.engine} />
+        </div>
+      )}
+
+    </div>
+  )
+}
+
 export default function Projects() {
   return (
     <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
       <div className="flex flex-col gap-8 w-full max-w-[520px]">
 
-        <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">[Projects]</span>
+        <SectionTitle>Projects</SectionTitle>
 
         <div className="flex flex-col gap-8">
-          {projects.map((proj) => (
-            <div key={proj.name} className="flex flex-col gap-1">
-
-              <div className="flex items-center gap-1">
-                {proj.href ? (
-                  <a href={proj.href} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 cursor-pointer">
-                    <EncryptedText
-                      text={proj.name}
-                      className="text-sm font-medium tracking-[-0.01em]"
-                      encryptedClassName="text-primary"
-                      revealedClassName="text-primary"
-                      revealDelayMs={40}
-                      flipDelayMs={40}
-                    />
-                    {proj.accent && (
-                      <IconArrowUpRight size={14} style={{ color: proj.accent }} className="shrink-0 translate-y-[1px]" />
-                    )}
-                  </a>
-                ) : (
-                  <EncryptedText
-                    text={proj.name}
-                    className="text-sm font-medium tracking-[-0.01em]"
-                    encryptedClassName="text-primary opacity-30"
-                    revealedClassName="text-primary"
-                    revealDelayMs={40}
-                    flipDelayMs={40}
-                  />
-                )}
-              </div>
-
-              <span className="text-xs font-medium text-primary opacity-40 tracking-[-0.01em]">
-                {proj.role} · {proj.period}
-              </span>
-
-              <p className="text-sm font-medium text-primary tracking-[-0.01em] mt-1">
-                {proj.description}
-              </p>
-
-            </div>
+          {projects.map((project) => (
+            <ProjectEntry key={project.name} project={project} />
           ))}
         </div>
 

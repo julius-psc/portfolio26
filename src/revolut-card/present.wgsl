@@ -1,5 +1,5 @@
 struct Present {
-  // xy = shadow center UV, z = strength 0–1
+  // xy = shadow center UV, z = strength 0–1, w = card upright 0–1
   shadow: vec4f,
 }
 
@@ -39,7 +39,8 @@ fn tonemapHuePreserve(hdr: vec3f) -> vec3f {
 
   // Contact shadow — opposite key softbox (upper-left → lower-right)
   let sc = present.shadow.xy;
-  let d = (uv - sc) / vec2f(0.28, 0.16);
+  // Ellipse follows the card's roll: wide when landscape, tall when upright.
+  let d = (uv - sc) / mix(vec2f(0.28, 0.16), vec2f(0.16, 0.28), present.shadow.w);
   let soft = exp(-dot(d, d) * 1.4);
   bg *= 1.0 - soft * present.shadow.z * 0.85;
 

@@ -1,4 +1,4 @@
-import { useRef, useMemo, useEffect } from "react";
+import { useRef, useMemo, useEffect, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -273,8 +273,21 @@ export default function HalftoneFlickerBanner({
   const fg = dark ? foregroundColorDark : foregroundColor;
   const bg = dark ? backgroundColorDark : backgroundColor;
 
+  // Only render while on screen — a page can stack several of these, and each
+  // is its own WebGL context drawing every frame.
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting));
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div
+      ref={containerRef}
       className={className}
       style={{
         height: typeof height === "number" ? `${height}px` : height,
@@ -284,6 +297,7 @@ export default function HalftoneFlickerBanner({
       }}
     >
       <Canvas
+        frameloop={inView ? "always" : "never"}
         dpr={[1, 2]}
         camera={{ position: [0, 0, 1], near: 0.01, far: 10, fov: 75 }}
         gl={{ antialias: false, alpha: !!text || opacity < 1 }}

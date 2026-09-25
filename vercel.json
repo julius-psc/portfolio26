@@ -1,3 +1,7 @@
 {
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/revolut-card", "destination": "/artifacts/chrome-is-a-room", "permanent": true }
+  ],
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }

@@ -100,6 +100,7 @@ export function QueueItemExpanded({
   const [validationError, setValidationError] = useState<string | null>(null);
 
   const cardDoneRef = useRef(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const isCollapsingRef = useRef(false);
   const prevIsActiveRef = useRef(isActive);
 
@@ -142,6 +143,9 @@ export function QueueItemExpanded({
     if (!isActive || isResolved || isResolving || isSuccess) return;
     function onKeyDown(e: KeyboardEvent) {
       if (e.target instanceof HTMLInputElement) return;
+      // Same rule as the queue's A/D keys: only while the queue is in use.
+      const queue = cardRef.current?.closest('[data-nudge="approval-queue"]');
+      if (!queue?.matches(":hover, :focus-within")) return;
       if (e.key === "m" || e.key === "M") {
         e.preventDefault();
         setEditMode((v) => !v);
@@ -329,6 +333,7 @@ export function QueueItemExpanded({
       </motion.div>
 
       <motion.div
+        ref={cardRef}
         data-nudge-item={isIdleCollapsed ? "collapsed" : "expanded"}
         data-status={status}
         className="relative bg-surface-app w-[300px]"
