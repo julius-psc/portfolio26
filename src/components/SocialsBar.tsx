@@ -5,7 +5,6 @@ import Text3DFlip from '@/components/ui/text-3d-flip';
 import githubIcon from '../assets/icons/github.svg';
 import linkedinIcon from '../assets/icons/linkedin.svg';
 import xIcon from '../assets/icons/x.svg';
-import { copied as copiedSound } from '@/lib/sounds';
 
 const EMAIL = 'peschardjulius03@gmail.com';
 
@@ -25,7 +24,6 @@ export default function SocialsBar() {
       window.location.href = `mailto:${EMAIL}`;
       return;
     }
-    copiedSound();
     setCopied(true);
     window.clearTimeout(copiedTimer.current);
     copiedTimer.current = window.setTimeout(() => setCopied(false), 1600);

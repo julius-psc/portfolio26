@@ -50,7 +50,7 @@ export function BackLink() {
   return (
     <a
       href="/"
-      aria-label="Back to juliuspeschard.com"
+      aria-label="Back to julius.works"
       className="group relative mb-10 flex size-6 items-center justify-center rounded-md transition-colors duration-150 ease-ui"
       style={{ background: ink(6), color: ink(60) }}
     >

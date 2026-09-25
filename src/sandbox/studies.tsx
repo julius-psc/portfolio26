@@ -6,6 +6,8 @@ export type Study = {
   id: string
   /** Component name — shown as `<Title />`. */
   title: string
+  /** A hand-set sketch of the component for its DotGlyph. */
+  dots: number
   /** Renders its own preview (an artifact, with its studio and panel). */
   component: ComponentType<{ onDockChange?: OnDockChange }>
   /** The write-up, one paragraph per entry. */
@@ -16,6 +18,9 @@ export const studies: Study[] = [
   {
     id: 'approval-queue',
     title: 'ApprovalQueue',
+    // Three rows, each an item with the approve column left open:
+    // ● ● · / ● ● · / ● ● ·
+    dots: 0b011011011,
     component: ApprovalQueueArtifact,
     body: [
       'Anything that lets an agent act on your behalf needs the same moment: a person looks at what the agent wants to do, and decides. Today that moment gets rebuilt from scratch every time, and usually ends up as a table, a Slack message, or raw JSON in a dashboard nobody checks.',

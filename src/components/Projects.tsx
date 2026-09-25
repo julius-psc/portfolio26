@@ -110,7 +110,7 @@ function ProjectEntry({ project }: { project: Project }) {
 export default function Projects() {
   return (
     <div className="w-full flex justify-center pt-16 px-4 sm:px-0">
-      <div className="flex flex-col gap-8 w-full max-w-[520px]">
+      <div className="flex flex-col gap-4 w-full max-w-[520px]">
 
         <SectionTitle>Projects</SectionTitle>
 

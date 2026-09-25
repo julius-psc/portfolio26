@@ -29,38 +29,6 @@ export const panelClose = defineSound({
   gain: 0.03,
 })
 
-/** Email copied: two quick notes a fifth apart — "done". */
-export const copied = defineSound({
-  layers: [
-    {
-      source: { type: 'sine', frequency: 1175 },
-      envelope: { attack: 0.002, decay: 0.08 },
-      gain: 0.022,
-    },
-    {
-      source: { type: 'sine', frequency: 1760 },
-      envelope: { attack: 0.002, decay: 0.12 },
-      gain: 0.022,
-      delay: 0.07,
-    },
-  ],
-})
-
-/** Studio light switch: a dry click, a touch brighter turning on. */
-export const switchOn = defineSound({
-  source: { type: 'noise' },
-  filter: { type: 'bandpass', frequency: 3200, resonance: 2 },
-  envelope: { decay: 0.018 },
-  gain: 0.08,
-})
-
-export const switchOff = defineSound({
-  source: { type: 'noise' },
-  filter: { type: 'bandpass', frequency: 2200, resonance: 2 },
-  envelope: { decay: 0.018 },
-  gain: 0.08,
-})
-
 /** Avatar slingshot released: an elastic flick up as the page changes mode. */
 export const slingshot = defineSound({
   source: { type: 'sine', frequency: { start: 220, end: 880 } },

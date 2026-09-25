@@ -4,7 +4,6 @@ import { albedoToDataUrl, bakeFaceMaps } from '../../revolut-card/faceMaps'
 import { isMobileLike, startRevolutCard } from '../../revolut-card/start'
 import { EASE_UI } from '../../revolut-card/motionTokens'
 import { ArtifactStudio } from '../artifact-panel/ArtifactStudio'
-import { switchOff, switchOn } from '@/lib/sounds'
 
 /** Live WebGPU card inside a compact rounded dark studio frame. */
 export function LiveCardArtifact({
@@ -152,11 +151,7 @@ export function LiveCardArtifact({
               role="switch"
               aria-checked={lightsOn}
               aria-label={lightsOn ? 'Turn studio light off' : 'Turn studio light on'}
-              onClick={() => {
-                if (lightsOn) switchOff()
-                else switchOn()
-                setLightsOn(!lightsOn)
-              }}
+              onClick={() => setLightsOn((v) => !v)}
               className="btn-press relative h-5 w-9 shrink-0 rounded-full"
               style={{
                 background: lightsOn
